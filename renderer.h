@@ -14,12 +14,25 @@
 #include <glm/glm.hpp>
 
 class Renderer {
+    glm::vec3 camPos;
+    float camPitch, camYaw;
+    
+    glm::mat4 viewMatrix;
+    glm::mat4 projectionMatrix;
+    glm::mat4 mvpMatrix;
+    
     GLuint shaderProgram;
+    GLuint u_MvpMatrixLocation;
+    
     GLuint vertexArrayID;
     GLuint vertexBuffer;
     
+    void updateViewMatrix();
+    void updateMvpMatrix();
+    
 public:
     Renderer();
+    void setSize(float width, float height);
     void render();
 };
 

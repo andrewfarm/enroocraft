@@ -26,7 +26,10 @@ int main(int argc, const char * argv[]) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     
-    GLFWwindow *window = glfwCreateWindow(800, 600, "enroocraft", NULL, NULL);
+    const int WINDOW_WIDTH  = 800;
+    const int WINDOW_HEIGHT = 600;
+    
+    GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "enroocraft", NULL, NULL);
     if (window == NULL) {
         fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
         glfwTerminate();
@@ -41,6 +44,7 @@ int main(int argc, const char * argv[]) {
     }
     
     Renderer renderer;
+    renderer.setSize(WINDOW_WIDTH, WINDOW_WIDTH);
     
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     do {
