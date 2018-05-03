@@ -13,7 +13,11 @@
 #include <OpenGL/gl.h>
 #include <glm/glm.hpp>
 
+#include "world.h"
+
 class Renderer {
+    World *world;
+    
     glm::vec3 camPos;
     float camPitch, camYaw;
     
@@ -26,12 +30,14 @@ class Renderer {
     
     GLuint vertexArrayID;
     GLuint vertexBuffer;
+    GLuint numVertices;
     
     void updateMvpMatrix();
     
 public:
     Renderer();
     void setSize(float width, float height);
+    void setWorld(World *world);
     
     float getCamX();
     float getCamY();

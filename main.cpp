@@ -17,6 +17,7 @@
 
 #include "renderer.h"
 #include "controls.h"
+#include "world.h"
 
 int main(int argc, const char * argv[]) {
     if (!glfwInit()) {
@@ -30,7 +31,7 @@ int main(int argc, const char * argv[]) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     
     const int WINDOW_WIDTH  = 800;
-    const int WINDOW_HEIGHT = 600;
+    const int WINDOW_HEIGHT = 800;
     
     GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "enroocraft", NULL, NULL);
     if (window == NULL) {
@@ -48,8 +49,12 @@ int main(int argc, const char * argv[]) {
         return EXIT_FAILURE;
     }
     
+    World world;
+    world.genesis(0, 0);
+    
     Renderer renderer;
     renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    renderer.setWorld(&world);
     
     std::chrono::high_resolution_clock::time_point start, end;
     double deltaTime;
