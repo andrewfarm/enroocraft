@@ -7,6 +7,7 @@
 //
 
 #include <stdio.h>
+#include <math.h>
 
 #include <glm/glm.hpp>
 
@@ -19,49 +20,49 @@ static const float nxGeometry[] = {
     0.0f, 1.0f, 1.0f,
     0.0f, 1.0f, 0.0f,
     0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,
     0.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f,
 };
 static const float pxGeometry[] = {
     1.0f, 1.0f, 0.0f,
     1.0f, 1.0f, 1.0f,
     1.0f, 0.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f,
     1.0f, 0.0f, 1.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 1.0f, 1.0f,
 };
 static const float nyGeometry[] = {
     1.0f, 0.0f, 1.0f,
     0.0f, 0.0f, 1.0f,
     1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,
 };
 static const float pyGeometry[] = {
     1.0f, 1.0f, 0.0f,
     0.0f, 1.0f, 0.0f,
     1.0f, 1.0f, 1.0f,
-    0.0f, 1.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,
     0.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    0.0f, 1.0f, 0.0f,
 };
 static const float nzGeometry[] = {
     0.0f, 1.0f, 0.0f,
     1.0f, 1.0f, 0.0f,
     0.0f, 0.0f, 0.0f,
-    1.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f,
     1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,
+    1.0f, 1.0f, 0.0f,
 };
 static const float pzGeometry[] = {
     1.0f, 1.0f, 1.0f,
     0.0f, 1.0f, 1.0f,
     1.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 1.0f,
     0.0f, 0.0f, 1.0f,
+    1.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 1.0f,
 };
 
 static void translateGeometry(float *geometry, size_t length,
@@ -92,27 +93,26 @@ static void copyTranslatedIntoVector(
 
 void World::genesis(int chunkX, int chunkY) {
     std::vector<blocktype> chunkdata;
-    chunkdata.resize(1024);
-    for (int i = 0; i < 1024; i++) {
+    chunkdata.resize(1026);
+    for (int i = 0; i < 1026; i++) {
         chunkdata[i] = BLOCK_SOLID;
     }
     chunks.insert(std::make_pair(std::make_pair(chunkX, chunkY), std::move(chunkdata)));
 }
 
 blocktype World::getBlock(int x, int y, int z) {
-    std::pair<int, int> chunkKey = std::make_pair(x / CHUNK_SIZE, z / CHUNK_SIZE);
+    std::pair<int, int> chunkKey = std::make_pair(
+            floor((float) x / CHUNK_SIZE), floor((float) z / CHUNK_SIZE));
     if (chunks.count(chunkKey) == 0) {
-        return BLOCK_AIR;
+        return BLOCK_NOT_LOADED;
     }
     std::vector<blocktype> chunk = chunks[chunkKey];
     int index = (y * CHUNK_SIZE * CHUNK_SIZE) + ((z % CHUNK_SIZE) * CHUNK_SIZE) + (x % CHUNK_SIZE);
-    if (index > chunk.size()) {
-        return BLOCK_NOT_LOADED;
+    if ((index < 0) || (index > chunk.size())) {
+        return BLOCK_AIR;
     }
     return chunk[index];
 }
-
-
 
 std::vector<float>World::mesh() {
     std::vector<float> vertices;
@@ -124,14 +124,15 @@ std::vector<float>World::mesh() {
     float tmpGeometry[FACE_GEOMETRY_LENGTH];
     for (auto& entry : chunks) {
         chunkCoords = entry.first;
-        chunkHeight = (unsigned int) (entry.second.size() / (CHUNK_SIZE * CHUNK_SIZE));
+        chunkHeight = (unsigned int) ceil((float) entry.second.size() / (CHUNK_SIZE * CHUNK_SIZE));
         for (internalY = 0; internalY < chunkHeight; internalY++) {
             for (internalZ = 0; internalZ < CHUNK_SIZE; internalZ++) {
                 for (internalX = 0; internalX < CHUNK_SIZE; internalX++) {
                     index = (internalY * CHUNK_SIZE * CHUNK_SIZE) +
                             (internalZ * CHUNK_SIZE) +
                             internalX;
-                    if (entry.second[index] > BLOCK_AIR) {
+                    if ((index < entry.second.size()) &&
+                        (entry.second[index] > BLOCK_AIR)) {
                         x = chunkCoords.first  * CHUNK_SIZE + internalX;
                         y = internalY;
                         z = chunkCoords.second * CHUNK_SIZE + internalZ;
