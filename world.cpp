@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include <glm/glm.hpp>
+#include <noise/noise.h>
 
 #include "world.h"
 
@@ -91,13 +92,40 @@ static void copyTranslatedIntoVector(
     }
 }
 
-void World::genesis(int chunkX, int chunkY) {
+void World::genesis(int chunkX, int chunkZ) {
+    printf("Generating chunk (%d, %d)\n", chunkX, chunkZ);
     std::vector<blocktype> chunkdata;
-    chunkdata.resize(1026);
-    for (int i = 0; i < 1026; i++) {
-        chunkdata[i] = BLOCK_SOLID;
+    
+    noise::module::Perlin noiseModule;
+    int maxHeight = 0;
+    int heightmap[CHUNK_SIZE][CHUNK_SIZE];
+    int height;
+    for (int z = 0; z < CHUNK_SIZE; z++) {
+        for (int x = 0; x < CHUNK_SIZE; x++) {
+            heightmap[z][x] = height = 64 + (int) (noiseModule.GetValue(
+                    (chunkX * CHUNK_SIZE + x) * 0.01 + 0.5,
+                    0.5,
+                    (chunkZ * CHUNK_SIZE + z) * 0.01 + 0.5)
+                    * 16.0);
+            if (height > maxHeight) {
+                maxHeight = height;
+            }
+        }
     }
-    chunks.insert(std::make_pair(std::make_pair(chunkX, chunkY), std::move(chunkdata)));
+    chunkdata.reserve(maxHeight * CHUNK_SIZE * CHUNK_SIZE);
+    for (int y = 0; y <= maxHeight; y++) {
+        for (int z = 0; z < CHUNK_SIZE; z++) {
+            for (int x = 0; x < CHUNK_SIZE; x++) {
+                chunkdata.push_back((y < heightmap[z][x]) ? BLOCK_SOLID : BLOCK_AIR);
+            }
+        }
+    }
+    
+    chunks.insert(std::make_pair(std::make_pair(chunkX, chunkZ), std::move(chunkdata)));
+}
+
+static int mod(int a, int b) {
+    return (a % b + b) % b;
 }
 
 blocktype World::getBlock(int x, int y, int z) {
@@ -107,7 +135,7 @@ blocktype World::getBlock(int x, int y, int z) {
         return BLOCK_NOT_LOADED;
     }
     std::vector<blocktype> chunk = chunks[chunkKey];
-    int index = (y * CHUNK_SIZE * CHUNK_SIZE) + ((z % CHUNK_SIZE) * CHUNK_SIZE) + (x % CHUNK_SIZE);
+    int index = (y * CHUNK_SIZE * CHUNK_SIZE) + (mod(z, CHUNK_SIZE) * CHUNK_SIZE) + mod(x, CHUNK_SIZE);
     if ((index < 0) || (index > chunk.size())) {
         return BLOCK_AIR;
     }
@@ -118,13 +146,14 @@ std::vector<float>World::mesh() {
     std::vector<float> vertices;
     std::pair<int, int> chunkCoords;
     int internalX, internalY, internalZ;
-    unsigned int chunkHeight;
+    int chunkHeight;
     int index;
     int x, y, z;
     float tmpGeometry[FACE_GEOMETRY_LENGTH];
     for (auto& entry : chunks) {
         chunkCoords = entry.first;
-        chunkHeight = (unsigned int) ceil((float) entry.second.size() / (CHUNK_SIZE * CHUNK_SIZE));
+        printf("Meshing chunk (%d, %d)\n", chunkCoords.first, chunkCoords.second);
+        chunkHeight = (int) ceil((float) entry.second.size() / (CHUNK_SIZE * CHUNK_SIZE));
         for (internalY = 0; internalY < chunkHeight; internalY++) {
             for (internalZ = 0; internalZ < CHUNK_SIZE; internalZ++) {
                 for (internalX = 0; internalX < CHUNK_SIZE; internalX++) {
@@ -137,27 +166,27 @@ std::vector<float>World::mesh() {
                         y = internalY;
                         z = chunkCoords.second * CHUNK_SIZE + internalZ;
                         
-                        if (getBlock(x - 1, y, z) < BLOCK_SOLID) {
+                        if (getBlock(x - 1, y, z) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,
                                     nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z);
                         }
-                        if (getBlock(x + 1, y, z) < BLOCK_SOLID) {
+                        if (getBlock(x + 1, y, z) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,
                                     pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z);
                         }
-                        if (getBlock(x, y - 1, z) < BLOCK_SOLID) {
+                        if (getBlock(x, y - 1, z) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,
                                     nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z);
                         }
-                        if (getBlock(x, y + 1, z) < BLOCK_SOLID) {
+                        if (getBlock(x, y + 1, z) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,
                                     pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z);
                         }
-                        if (getBlock(x, y, z - 1) < BLOCK_SOLID) {
+                        if (getBlock(x, y, z - 1) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,
                                     nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z);
                         }
-                        if (getBlock(x, y, z + 1) < BLOCK_SOLID) {
+                        if (getBlock(x, y, z + 1) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,
                                     pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z);
                         }

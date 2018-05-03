@@ -10,8 +10,8 @@
 
 #include "controls.h"
 
-#define LOOK_SPEED 0.05f
-#define MOVE_SPEED 5.0f
+#define LOOK_SPEED 0.1f
+#define MOVE_SPEED 10.0f
 
 void updateControls(
         GLFWwindow *window,

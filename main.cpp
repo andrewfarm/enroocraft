@@ -50,7 +50,11 @@ int main(int argc, const char * argv[]) {
     }
     
     World world;
-    world.genesis(0, 0);
+    for (int z = -2; z < 2; z++) {
+        for (int x = -2; x < 2; x++) {
+            world.genesis(x, z);
+        }
+    }
     
     Renderer renderer;
     renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);

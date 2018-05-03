@@ -16,12 +16,12 @@
 #include <vector>
 
 #include "renderer.h"
-#include "loadshaders.h"
+#include "shaderutils.h"
 
 Renderer::Renderer() {
-    camPos = glm::vec3(0.0f, 0.0f, 32.0f);
-    camPitch = atan(-camPos[1] / camPos[2]);
-    camYaw = atan2f(camPos[0], camPos[2]);
+    camPos = glm::vec3(0.5f, 70.0f, 0.5f);
+    camPitch = 0;
+    camYaw = 0;
     updateViewMatrix();
     
     glGenVertexArrays(1, &vertexArrayID);
@@ -43,7 +43,7 @@ Renderer::Renderer() {
 
 void Renderer::setSize(float width, float height) {
     glViewport(0, 0, width * 2, height * 2); //TODO replace hardcoded pixel density
-    projectionMatrix = glm::perspective(glm::radians(60.0f), height / width, 0.1f, 100.0f);
+    projectionMatrix = glm::perspective(glm::radians(60.0f), height / width, 0.1f, 1000.0f);
     updateMvpMatrix();
 }
 
