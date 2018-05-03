@@ -27,12 +27,23 @@ class Renderer {
     GLuint vertexArrayID;
     GLuint vertexBuffer;
     
-    void updateViewMatrix();
     void updateMvpMatrix();
     
 public:
     Renderer();
     void setSize(float width, float height);
+    
+    float getCamX();
+    float getCamY();
+    float getCamZ();
+    float getCamPitch();
+    float getCamYaw();
+    void setCamPos(float x, float y, float z);
+    void setCamPitch(float pitch);
+    void setCamYaw(float yaw);
+    
+    void updateViewMatrix();
+    
     void render();
 };
 

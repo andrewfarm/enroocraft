@@ -46,6 +46,15 @@ void Renderer::setSize(float width, float height) {
     updateMvpMatrix();
 }
 
+float Renderer::getCamX() { return camPos[0]; }
+float Renderer::getCamY() { return camPos[1]; }
+float Renderer::getCamZ() { return camPos[2]; }
+float Renderer::getCamPitch() { return camPitch; }
+float Renderer::getCamYaw() { return camYaw; }
+void Renderer::setCamPos(float x, float y, float z) { camPos = glm::vec3(x, y, z); }
+void Renderer::setCamPitch(float pitch) { camPitch = pitch; }
+void Renderer::setCamYaw(float yaw) { camYaw = yaw; }
+
 void Renderer::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -60,10 +69,10 @@ void Renderer::render() {
 }
 
 void Renderer::updateViewMatrix() {
-    viewMatrix = glm::translate(glm::rotate(glm::rotate(glm::mat4(), camYaw, glm::vec3(0.0f, 1.0f, 0.0f)), camPitch, glm::vec3(1.0f, 0.0f, 0.0f)), -camPos);
+    viewMatrix = glm::translate(glm::rotate(glm::rotate(glm::mat4(), -camPitch, glm::vec3(1.0f, 0.0f, 0.0f)), -camYaw, glm::vec3(0.0f, 1.0f, 0.0f)), -camPos);
     updateMvpMatrix();
 }
 
 void Renderer::updateMvpMatrix() {
-    mvpMatrix = projectionMatrix * viewMatrix * glm::mat4(); //TODO remove identity matrix
+    mvpMatrix = projectionMatrix * viewMatrix;
 }

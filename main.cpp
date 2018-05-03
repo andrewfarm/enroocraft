@@ -9,11 +9,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <chrono>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <OpenGL/gl.h>
 
 #include "renderer.h"
+#include "controls.h"
 
 int main(int argc, const char * argv[]) {
     if (!glfwInit()) {
@@ -35,6 +38,8 @@ int main(int argc, const char * argv[]) {
         glfwTerminate();
         return EXIT_FAILURE;
     }
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwMakeContextCurrent(window);
     
     glewExperimental=true; // Needed in core profile
@@ -44,10 +49,20 @@ int main(int argc, const char * argv[]) {
     }
     
     Renderer renderer;
-    renderer.setSize(WINDOW_WIDTH, WINDOW_WIDTH);
+    renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+    std::chrono::high_resolution_clock::time_point start, end;
+    double deltaTime;
+    end = std::chrono::high_resolution_clock::now();
+    double prevMouseX, prevMouseY;
+    glfwGetCursorPos(window, &prevMouseX, &prevMouseX);
     do {
+        start = end;
+        end = std::chrono::high_resolution_clock::now();
+        deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+        
+        updateControls(window, renderer, &prevMouseX, &prevMouseY, deltaTime);
+        
         renderer.render();
         
         glfwSwapBuffers(window);
