@@ -70,14 +70,17 @@ void Renderer::setCamYaw(float yaw) { camYaw = yaw; }
 
 void Renderer::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     
     glUseProgram(shaderProgram);
     glUniformMatrix4fv(u_MvpMatrixLocation, 1, GL_FALSE, &mvpMatrix[0][0]);
     
-    glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (0 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
     glDrawArrays(GL_TRIANGLES, 0, numVertices);
     glDisableVertexAttribArray(0);
 }

@@ -13,57 +13,57 @@
 
 #include "world.h"
 
-#define FACE_GEOMETRY_LENGTH 18
-#define FACE_GEOMETRY_STRIDE 3
-
 static const float nxGeometry[] = {
-    0.0f, 1.0f, 1.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,
 };
 static const float pxGeometry[] = {
-    1.0f, 1.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f,
-    1.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+    1.0f, 1.0f, 1.0f,   1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 1.0f,   1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+    1.0f, 1.0f, 1.0f,   1.0f, 0.0f, 0.0f,
 };
 static const float nyGeometry[] = {
-    1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,
+    1.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,
 };
 static const float pyGeometry[] = {
-    1.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,
-    0.0f, 1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    0.0f, 1.0f, 0.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+    1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,
+    1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
 };
 static const float nzGeometry[] = {
-    0.0f, 1.0f, 0.0f,
-    1.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 0.0f,
-    1.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,
 };
 static const float pzGeometry[] = {
-    1.0f, 1.0f, 1.0f,
-    0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
+    1.0f, 0.0f, 1.0f,   0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, 0.0f, 1.0f,
+    1.0f, 0.0f, 1.0f,   0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
 };
+
+const int FACE_GEOMETRY_LENGTH = sizeof(nxGeometry) / sizeof(nxGeometry[0]);
+const int FACE_GEOMETRY_STRIDE = 6;
 
 static void translateGeometry(float *geometry, size_t length,
         float x, float y, float z) {
