@@ -124,17 +124,18 @@ void World::genesis(int chunkX, int chunkZ) {
     chunks.insert(std::make_pair(std::make_pair(chunkX, chunkZ), std::move(chunkdata)));
 }
 
-static int mod(int a, int b) {
+static inline int mod(int a, int b) {
     return (a % b + b) % b;
 }
 
 blocktype World::getBlock(int x, int y, int z) {
-    std::pair<int, int> chunkKey = std::make_pair(
+    const std::pair<int, int> chunkKey(
             floor((float) x / CHUNK_SIZE), floor((float) z / CHUNK_SIZE));
-    if (chunks.count(chunkKey) == 0) {
+    auto result = chunks.find(chunkKey);
+    if (result == chunks.end()) {
         return BLOCK_NOT_LOADED;
     }
-    std::vector<blocktype> &chunk = chunks[chunkKey];
+    std::vector<blocktype> &chunk = result->second;
     int index = (y * CHUNK_SIZE * CHUNK_SIZE) + (mod(z, CHUNK_SIZE) * CHUNK_SIZE) + mod(x, CHUNK_SIZE);
     if ((index < 0) || (index > chunk.size())) {
         return BLOCK_AIR;
@@ -144,15 +145,14 @@ blocktype World::getBlock(int x, int y, int z) {
 
 std::vector<float>World::mesh() {
     std::vector<float> vertices;
-    std::pair<int, int> chunkCoords;
     int internalX, internalY, internalZ;
     int chunkHeight;
     int index;
     int x, y, z;
     float tmpGeometry[FACE_GEOMETRY_LENGTH];
     for (auto& entry : chunks) {
-        chunkCoords = entry.first;
-        printf("Meshing chunk (%d, %d)\n", chunkCoords.first, chunkCoords.second);
+        // entry.first is the cunk (x, z) coordinates, entry.second is the chunk data
+        printf("Meshing chunk (%d, %d)\n", entry.first.first, entry.first.second);
         chunkHeight = (int) ceil((float) entry.second.size() / (CHUNK_SIZE * CHUNK_SIZE));
         for (internalY = 0; internalY < chunkHeight; internalY++) {
             for (internalZ = 0; internalZ < CHUNK_SIZE; internalZ++) {
@@ -162,9 +162,9 @@ std::vector<float>World::mesh() {
                             internalX;
                     if ((index < entry.second.size()) &&
                         (entry.second[index] > BLOCK_AIR)) {
-                        x = chunkCoords.first  * CHUNK_SIZE + internalX;
+                        x = entry.first.first  * CHUNK_SIZE + internalX;
                         y = internalY;
-                        z = chunkCoords.second * CHUNK_SIZE + internalZ;
+                        z = entry.first.second * CHUNK_SIZE + internalZ;
                         
                         if (getBlock(x - 1, y, z) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,

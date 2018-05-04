@@ -50,8 +50,8 @@ int main(int argc, const char * argv[]) {
     }
     
     World world;
-    for (int z = -2; z < 2; z++) {
-        for (int x = -2; x < 2; x++) {
+    for (int z = -8; z < 8; z++) {
+        for (int x = -8; x < 8; x++) {
             world.genesis(x, z);
         }
     }
