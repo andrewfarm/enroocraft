@@ -134,7 +134,7 @@ blocktype World::getBlock(int x, int y, int z) {
     if (chunks.count(chunkKey) == 0) {
         return BLOCK_NOT_LOADED;
     }
-    std::vector<blocktype> chunk = chunks[chunkKey];
+    std::vector<blocktype> &chunk = chunks[chunkKey];
     int index = (y * CHUNK_SIZE * CHUNK_SIZE) + (mod(z, CHUNK_SIZE) * CHUNK_SIZE) + mod(x, CHUNK_SIZE);
     if ((index < 0) || (index > chunk.size())) {
         return BLOCK_AIR;
