@@ -10,7 +10,6 @@
 #define renderer_h
 
 #include <GL/glew.h>
-#include <OpenGL/gl.h>
 #include <glm/glm.hpp>
 
 #include "world.h"
@@ -26,11 +25,14 @@ class Renderer {
     glm::mat4 mvpMatrix;
     
     GLuint shaderProgram;
-    GLuint u_MvpMatrixLocation;
+    GLint u_MvpMatrixLocation;
+    GLint u_TextureLocation;
     
     GLuint vertexArrayID;
     GLuint vertexBuffer;
     GLuint numVertices;
+    
+    GLuint texture;
     
     void updateMvpMatrix();
     

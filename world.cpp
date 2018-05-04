@@ -14,58 +14,6 @@
 
 #include "world.h"
 
-static const float nxGeometry[] = {
-    0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,
-};
-static const float pxGeometry[] = {
-    1.0f, 1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,   1.0f, 0.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
-    1.0f, 0.0f, 1.0f,   1.0f, 0.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,   1.0f, 0.0f, 0.0f,
-};
-static const float nyGeometry[] = {
-    1.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,
-};
-static const float pyGeometry[] = {
-    1.0f, 1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
-};
-static const float nzGeometry[] = {
-    0.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,
-    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,
-    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,
-    1.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,
-    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,
-    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,
-};
-static const float pzGeometry[] = {
-    1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 1.0f,   0.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f,   0.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 1.0f,   0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
-};
-
-const int FACE_GEOMETRY_LENGTH = sizeof(nxGeometry) / sizeof(nxGeometry[0]);
-const int FACE_GEOMETRY_STRIDE = 6;
-
 static void translateGeometry(float *geometry, size_t length,
         float x, float y, float z) {
     for (int i = 0; i < length; i += FACE_GEOMETRY_STRIDE) {

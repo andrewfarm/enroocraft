@@ -6,13 +6,11 @@
 //  Copyright © 2018 Andrew Farm. All rights reserved.
 //
 
-#ifndef loadshaders_h
-#define loadshaders_h
+#ifndef shaderutils_h
+#define shaderutils_h
 
-#include <iostream>
-
-#include <OpenGL/gl.h>
+#include <GL/glew.h>
 
 GLuint loadShaders(const char *vertex_file_path, const char *fragment_file_path);
 
-#endif /* loadshaders_h */
+#endif /* shaderutils_h */

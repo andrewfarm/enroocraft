@@ -17,6 +17,7 @@
 
 #include "renderer.h"
 #include "shaderutils.h"
+#include "textureutils.h"
 
 Renderer::Renderer() {
     camPos = glm::vec3(0.5f, 70.0f, 0.5f);
@@ -27,18 +28,11 @@ Renderer::Renderer() {
     glGenVertexArrays(1, &vertexArrayID);
     glBindVertexArray(vertexArrayID);
     
-//    const GLfloat g_vertex_buffer_data[] = {
-//        -1.0f, -1.0f, 0.0f,
-//        1.0f, -1.0f, 0.0f,
-//        0.0f,  1.0f, 0.0f,
-//    };
-    
-//    glGenBuffers(1, &vertexBuffer);
-//    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-    
     shaderProgram = loadShaders("shaders/vertexshader.glsl", "shaders/fragmentshader.glsl");
     u_MvpMatrixLocation = glGetUniformLocation(shaderProgram, "u_MvpMatrix");
+    u_TextureLocation   = glGetUniformLocation(shaderProgram, "u_Texture");
+    
+    texture = loadTexture("res/texture.png");
 }
 
 void Renderer::setSize(float width, float height) {
@@ -69,20 +63,33 @@ void Renderer::setCamPitch(float pitch) { camPitch = pitch; }
 void Renderer::setCamYaw(float yaw) { camYaw = yaw; }
 
 void Renderer::render() {
+    glClearColor(0.8f, 0.95f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     
     glUseProgram(shaderProgram);
     glUniformMatrix4fv(u_MvpMatrixLocation, 1, GL_FALSE, &mvpMatrix[0][0]);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glUniform1i(u_TextureLocation, 0);
     
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (0 * sizeof(float)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+            FACE_GEOMETRY_STRIDE * sizeof(float), (void *) (0 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+            FACE_GEOMETRY_STRIDE * sizeof(float), (void *) (3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+            FACE_GEOMETRY_STRIDE * sizeof(float), (void *) (6 * sizeof(float)));
+    
     glDrawArrays(GL_TRIANGLES, 0, numVertices);
     glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 }
 
 void Renderer::updateViewMatrix() {

@@ -20,6 +20,58 @@
 
 typedef int16_t blocktype;
 
+static const float nxGeometry[] = {
+    0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
+};
+static const float pxGeometry[] = {
+    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
+    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+    1.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
+};
+static const float nyGeometry[] = {
+    1.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 1.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 1.0f,
+};
+static const float pyGeometry[] = {
+    1.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+};
+static const float nzGeometry[] = {
+    0.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 1.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 0.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 1.0f,
+};
+static const float pzGeometry[] = {
+    1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+};
+
+const int FACE_GEOMETRY_LENGTH = sizeof(nxGeometry) / sizeof(nxGeometry[0]);
+const int FACE_GEOMETRY_STRIDE = 8;
+
 class World {
     std::map<std::pair<int, int>, std::vector<blocktype>> chunks;
     
