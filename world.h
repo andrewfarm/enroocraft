@@ -20,6 +20,9 @@ const blocktype BLOCK_NOT_LOADED = -1;
 const blocktype BLOCK_AIR   = 0;
 const blocktype BLOCK_GRASS = 1;
 
+const int TEXTURE_ATLAS_SIZE = 8;
+const float TEXTURE_ATLAS_SIZE_RECIPROCAL = 1.0f / TEXTURE_ATLAS_SIZE;
+
 struct block_textures {
     int nx, px, ny, py, nz, pz;
 };

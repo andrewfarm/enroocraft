@@ -29,12 +29,15 @@ class Renderer {
     
     ShaderProgram blockShaderProgram;
     ShaderProgram screenShaderProgram;
+    ShaderProgram crosshairShaderProgram;
     
     GLuint worldMeshVertexArray;
     GLuint worldMeshVertexBuffer;
     GLuint numVertices;
     GLuint screenVertexArray;
     GLuint screenVertexBuffer;
+    GLuint crosshairVertexArray;
+    GLuint crosshairVertexBuffer;
     
     GLuint texture;
     

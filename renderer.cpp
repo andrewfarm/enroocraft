@@ -29,6 +29,11 @@ static const float screenGeometry[] = {
 #define SCREEN_GEOMETRY_UV 2
 #define SCREEN_GEOMETRY_VERTEX_COMPONENTS 4
 
+static const float crosshairGeometry[] = {0.0f, 0.0f};
+
+#define CROSSHAIR_GEOMETRY_POSITION 0
+#define CROSSHAIR_GEOMETRY_VERTEX_COMPONENTS 2
+
 Renderer::Renderer() {
     camPos = glm::vec3(0.5f, 70.0f, 0.5f);
     camPitch = 0;
@@ -43,10 +48,15 @@ Renderer::Renderer() {
             "shaders/screenvertexshader.glsl",
             "shaders/screenfragmentshader.glsl");
     
+    crosshairShaderProgram.load(
+            "shaders/crosshairvertexshader.glsl",
+            "shaders/crosshairfragmentshader.glsl");
+    
     printf("Loading texture atlas\n");
     texture = loadTexture("res/textures.png");
     
     glGenVertexArrays(1, &worldMeshVertexArray);
+    
     glGenVertexArrays(1, &screenVertexArray);
     glBindVertexArray(screenVertexArray);
     
@@ -58,6 +68,16 @@ Renderer::Renderer() {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, SCREEN_GEOMETRY_VERTEX_COMPONENTS * sizeof(float), (void *) (SCREEN_GEOMETRY_POSITION * sizeof(float)));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, SCREEN_GEOMETRY_VERTEX_COMPONENTS * sizeof(float), (void *) (SCREEN_GEOMETRY_UV * sizeof(float)));
+    
+    glGenVertexArrays(1, &crosshairVertexArray);
+    glBindVertexArray(crosshairVertexArray);
+    
+    glGenBuffers(1, &crosshairVertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, crosshairVertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(crosshairGeometry), crosshairGeometry, GL_STATIC_DRAW);
+    
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, CROSSHAIR_GEOMETRY_VERTEX_COMPONENTS * sizeof(float), (void *) (CROSSHAIR_GEOMETRY_POSITION * sizeof(float)));
 }
 
 void Renderer::setSize(float width, float height) {
@@ -144,6 +164,7 @@ void Renderer::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
 
     blockShaderProgram.useProgram();
     glUniformMatrix4fv(blockShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE, &mvpMatrix[0][0]);
@@ -169,6 +190,20 @@ void Renderer::render() {
     
     glBindVertexArray(screenVertexArray);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR);
+    
+    crosshairShaderProgram.useProgram();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(crosshairShaderProgram.uniforms["u_Texture"], 0);
+    glUniform2f(crosshairShaderProgram.uniforms["u_StartUV"], 0.0f, 0.0f);
+    glUniform1f(crosshairShaderProgram.uniforms["u_TextureSize"], TEXTURE_ATLAS_SIZE_RECIPROCAL);
+    
+    glBindVertexArray(crosshairVertexArray);
+    glDrawArrays(GL_POINTS, 0, 1);
 }
 
 void Renderer::updateViewMatrix() {

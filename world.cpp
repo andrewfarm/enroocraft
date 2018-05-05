@@ -72,9 +72,6 @@ static void translateGeometry(float *geometry, size_t length,
     }
 }
 
-const int TEXTURE_ATLAS_SIZE = 8;
-const float TEXTURE_ATLAS_SIZE_RECIPROCAL = 1.0f / TEXTURE_ATLAS_SIZE;
-
 static void translateUV(float *geometry, size_t length, int textureNumber) {
     for (int i = FACE_GEOMETRY_UV; i < length; i += FACE_GEOMETRY_STRIDE) {
         geometry[i] = (geometry[i] + (textureNumber % TEXTURE_ATLAS_SIZE)) *
