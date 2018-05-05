@@ -78,13 +78,16 @@ void Renderer::render() {
     
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(float), (void *) (0 * sizeof(float)));
+            FACE_GEOMETRY_STRIDE * sizeof(float),
+            (void *) (FACE_GEOMETRY_POSITION * sizeof(float)));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(float), (void *) (3 * sizeof(float)));
+            FACE_GEOMETRY_STRIDE * sizeof(float),
+            (void *) (FACE_GEOMETRY_NORMAL * sizeof(float)));
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(float), (void *) (6 * sizeof(float)));
+            FACE_GEOMETRY_STRIDE * sizeof(float),
+            (void *) (FACE_GEOMETRY_UV * sizeof(float)));
     
     glDrawArrays(GL_TRIANGLES, 0, numVertices);
     glDisableVertexAttribArray(0);

@@ -72,6 +72,10 @@ static const float pzGeometry[] = {
 const int FACE_GEOMETRY_LENGTH = sizeof(nxGeometry) / sizeof(nxGeometry[0]);
 const int FACE_GEOMETRY_STRIDE = 8;
 
+#define FACE_GEOMETRY_POSITION 0
+#define FACE_GEOMETRY_NORMAL   3
+#define FACE_GEOMETRY_UV       6
+
 class World {
     std::map<std::pair<int, int>, std::vector<blocktype>> chunks;
     

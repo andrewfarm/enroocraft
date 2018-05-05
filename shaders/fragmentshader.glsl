@@ -9,7 +9,7 @@ uniform sampler2D u_Texture;
 
 void main() {
     vec4 texColor = texture(u_Texture, v_TexUV);
-    float ambientLight = 0.5;
-    float directionalLight = clamp(dot(v_Normal, normalize(vec3(0.3f, 1.0f, 0.4f))), 0.0f, 1.0f);
+    float ambientLight = 0.8;
+    float directionalLight = clamp(dot(v_Normal, normalize(vec3(0.02f, 1.0f, 0.05f))), 0.0f, 1.0f);
     color = texColor.rgb * clamp(ambientLight + directionalLight, 0.0f, 1.0f);
 }

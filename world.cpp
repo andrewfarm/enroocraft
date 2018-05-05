@@ -16,7 +16,7 @@
 
 static void translateGeometry(float *geometry, size_t length,
         float x, float y, float z) {
-    for (int i = 0; i < length; i += FACE_GEOMETRY_STRIDE) {
+    for (int i = FACE_GEOMETRY_POSITION; i < length; i += FACE_GEOMETRY_STRIDE) {
         geometry[i]     += x;
         geometry[i + 1] += y;
         geometry[i + 2] += z;
