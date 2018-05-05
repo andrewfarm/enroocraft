@@ -33,7 +33,7 @@ void ShaderProgram::load(const char *vertex_file_path, const char *fragment_file
     for (i = 0; i < count; i++) {
         glGetActiveUniform(programID, (GLuint) i, bufSize, &length, &size, &type, name);
         printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
-        uniforms.insert(std::make_pair(std::string(name), i));
+        uniforms.insert(std::make_pair(std::string(name), glGetUniformLocation(programID, name)));
     }
 }
 

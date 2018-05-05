@@ -27,9 +27,12 @@ class Renderer {
     glm::mat4 projectionMatrix;
     glm::mat4 mvpMatrix;
     
+    glm::mat4 selectionModelMatrix;
+    
     ShaderProgram blockShaderProgram;
     ShaderProgram screenShaderProgram;
     ShaderProgram crosshairShaderProgram;
+    ShaderProgram simpleShaderProgram;
     
     GLuint worldMeshVertexArray;
     GLuint worldMeshVertexBuffer;
@@ -38,6 +41,9 @@ class Renderer {
     GLuint screenVertexBuffer;
     GLuint crosshairVertexArray;
     GLuint crosshairVertexBuffer;
+    GLuint selectionVertexArray;
+    GLuint selectionVertexBuffer;
+    GLuint selectionIndexBuffer;
     
     GLuint texture;
     

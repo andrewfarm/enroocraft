@@ -34,6 +34,24 @@ static const float crosshairGeometry[] = {0.0f, 0.0f};
 #define CROSSHAIR_GEOMETRY_POSITION 0
 #define CROSSHAIR_GEOMETRY_VERTEX_COMPONENTS 2
 
+static const float selectionGeometry[] = {
+    -0.005f,  1.005f,  0.005f,
+     1.005f,  1.005f,  0.005f,
+     1.005f,  1.005f, -1.005f,
+    -0.005f,  1.005f, -1.005f,
+    -0.005f, -0.005f,  0.005f,
+     1.005f, -0.005f,  0.005f,
+     1.005f, -0.005f, -1.005f,
+    -0.005f, -0.005f, -1.005f,
+};
+
+static const unsigned char selectionIndices[] = {
+    0, 1, 1, 2, 2, 3, 3, 0, 0, 4, 1, 5, 2, 6, 3, 7, 4, 5, 5, 6, 6, 7, 7, 4
+};
+
+#define SELECTION_GEOMETRY_POSITION 0
+#define SELECTION_GEOMETRY_VERTEX_COMPONENTS 3
+
 Renderer::Renderer() {
     camPos = glm::vec3(0.5f, 70.0f, 0.5f);
     camPitch = 0;
@@ -51,6 +69,10 @@ Renderer::Renderer() {
     crosshairShaderProgram.load(
             "shaders/crosshairvertexshader.glsl",
             "shaders/crosshairfragmentshader.glsl");
+    
+    simpleShaderProgram.load(
+            "shaders/simplevertexshader.glsl",
+            "shaders/simplefragmentshader.glsl");
     
     printf("Loading texture atlas\n");
     texture = loadTexture("res/textures.png");
@@ -78,6 +100,22 @@ Renderer::Renderer() {
     
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, CROSSHAIR_GEOMETRY_VERTEX_COMPONENTS * sizeof(float), (void *) (CROSSHAIR_GEOMETRY_POSITION * sizeof(float)));
+    
+    glGenVertexArrays(1, &selectionVertexArray);
+    glBindVertexArray(selectionVertexArray);
+    
+    glGenBuffers(1, &selectionVertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, selectionVertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(selectionGeometry), selectionGeometry, GL_STATIC_DRAW);
+    
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, SELECTION_GEOMETRY_VERTEX_COMPONENTS * sizeof(float), (void *) (SELECTION_GEOMETRY_POSITION * sizeof(float)));
+    
+    glGenBuffers(1, &selectionIndexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, selectionIndexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(selectionIndices), selectionIndices, GL_STATIC_DRAW);
+    
+    selectionModelMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 63.0f, -5.0f)); //TODO
 }
 
 void Renderer::setSize(float width, float height) {
@@ -163,6 +201,7 @@ void Renderer::render() {
     glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
     glEnable(GL_CULL_FACE);
     glDisable(GL_BLEND);
 
@@ -174,6 +213,15 @@ void Renderer::render() {
 
     glBindVertexArray(worldMeshVertexArray);
     glDrawArrays(GL_TRIANGLES, 0, numVertices);
+    
+    simpleShaderProgram.useProgram();
+    glUniformMatrix4fv(simpleShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE,
+            &(mvpMatrix * selectionModelMatrix)[0][0]);
+    glUniform3f(simpleShaderProgram.uniforms["u_Color"], 0.0f, 0.0f, 0.0f);
+    
+    glBindVertexArray(selectionVertexArray);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, selectionIndexBuffer);
+    glDrawElements(GL_LINES, 24, GL_UNSIGNED_BYTE, (void *) 0);
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, width, height);
