@@ -14,63 +14,23 @@
 
 #define CHUNK_SIZE 16
 
-#define BLOCK_NOT_LOADED -1
-#define BLOCK_AIR         0
-#define BLOCK_SOLID       1
-
 typedef int16_t blocktype;
 
-static const float nxGeometry[] = {
-    0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
-    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
-};
-static const float pxGeometry[] = {
-    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
-    1.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
-};
-static const float nyGeometry[] = {
-    1.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   1.0f, 1.0f,
-    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   0.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 1.0f,
-};
-static const float pyGeometry[] = {
-    1.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
-    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
-};
-static const float nzGeometry[] = {
-    0.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f,
-    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 1.0f,
-    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f,
-    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 0.0f,
-    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 1.0f,
-};
-static const float pzGeometry[] = {
-    1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
-    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+const blocktype BLOCK_NOT_LOADED = -1;
+const blocktype BLOCK_AIR   = 0;
+const blocktype BLOCK_GRASS = 1;
+
+struct block_textures {
+    int nx, px, ny, py, nz, pz;
 };
 
-const int FACE_GEOMETRY_LENGTH = sizeof(nxGeometry) / sizeof(nxGeometry[0]);
-const int FACE_GEOMETRY_STRIDE = 8;
+const block_textures textureNumbers[] = {
+    {-1, -1, -1, -1, -1, -1}, //AIR
+    {2, 2, 3, 1, 2, 2}        //GRASS
+};
+
+#define FACE_GEOMETRY_LENGTH 48
+#define FACE_GEOMETRY_STRIDE 8
 
 #define FACE_GEOMETRY_POSITION 0
 #define FACE_GEOMETRY_NORMAL   3

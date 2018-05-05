@@ -32,7 +32,7 @@ Renderer::Renderer() {
     u_MvpMatrixLocation = glGetUniformLocation(shaderProgram, "u_MvpMatrix");
     u_TextureLocation   = glGetUniformLocation(shaderProgram, "u_Texture");
     
-    texture = loadTexture("res/texture.png");
+    texture = loadTexture("res/textures.png");
 }
 
 void Renderer::setSize(float width, float height) {

@@ -14,12 +14,73 @@
 
 #include "world.h"
 
+static const float nxGeometry[] = {
+    0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+};
+static const float pxGeometry[] = {
+    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+    1.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
+    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+};
+static const float nyGeometry[] = {
+    1.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   1.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   0.0f, 1.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 0.0f,
+};
+static const float pyGeometry[] = {
+    1.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+};
+static const float nzGeometry[] = {
+    0.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 0.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 1.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f,
+};
+static const float pzGeometry[] = {
+    1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+};
+
 static void translateGeometry(float *geometry, size_t length,
         float x, float y, float z) {
     for (int i = FACE_GEOMETRY_POSITION; i < length; i += FACE_GEOMETRY_STRIDE) {
         geometry[i]     += x;
         geometry[i + 1] += y;
         geometry[i + 2] += z;
+    }
+}
+
+const int TEXTURE_ATLAS_SIZE = 8;
+const float TEXTURE_ATLAS_SIZE_RECIPROCAL = 1.0f / TEXTURE_ATLAS_SIZE;
+
+static void translateUV(float *geometry, size_t length, int textureNumber) {
+    for (int i = FACE_GEOMETRY_UV; i < length; i += FACE_GEOMETRY_STRIDE) {
+        geometry[i] = (geometry[i] + (textureNumber % TEXTURE_ATLAS_SIZE)) *
+                TEXTURE_ATLAS_SIZE_RECIPROCAL;
+        geometry[i + 1] = (geometry[i + 1] + (textureNumber / TEXTURE_ATLAS_SIZE)) *
+                TEXTURE_ATLAS_SIZE_RECIPROCAL;
     }
 }
 
@@ -30,9 +91,11 @@ static void copyTranslatedIntoVector(
         size_t length,
         float translateX,
         float translateY,
-        float translateZ) {
+        float translateZ,
+        int textureNumber) {
     memcpy(temp, src, length * sizeof(*src));
     translateGeometry(temp, length, translateX, translateY, translateZ);
+    translateUV(temp, length, textureNumber);
     size_t size = dest.size();
     dest.resize(size + length);
     for (size_t i = 0; i < length; i++) {
@@ -64,7 +127,7 @@ void World::genesis(int chunkX, int chunkZ) {
     for (int y = 0; y <= maxHeight; y++) {
         for (int z = 0; z < CHUNK_SIZE; z++) {
             for (int x = 0; x < CHUNK_SIZE; x++) {
-                chunkdata.push_back((y < heightmap[z][x]) ? BLOCK_SOLID : BLOCK_AIR);
+                chunkdata.push_back((y < heightmap[z][x]) ? BLOCK_GRASS : BLOCK_AIR);
             }
         }
     }
@@ -98,6 +161,7 @@ std::vector<float>World::mesh() {
     int index;
     int x, y, z;
     float tmpGeometry[FACE_GEOMETRY_LENGTH];
+    block_textures tex;
     for (auto& entry : chunks) {
         // entry.first is the cunk (x, z) coordinates, entry.second is the chunk data
         printf("Meshing chunk (%d, %d)\n", entry.first.first, entry.first.second);
@@ -110,33 +174,35 @@ std::vector<float>World::mesh() {
                             internalX;
                     if ((index < entry.second.size()) &&
                         (entry.second[index] > BLOCK_AIR)) {
+                        
                         x = entry.first.first  * CHUNK_SIZE + internalX;
                         y = internalY;
                         z = entry.first.second * CHUNK_SIZE + internalZ;
+                        tex = textureNumbers[entry.second[index]];
                         
                         if (getBlock(x - 1, y, z) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,
-                                    nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z);
+                                    nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.nx);
                         }
                         if (getBlock(x + 1, y, z) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,
-                                    pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z);
+                                    pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.px);
                         }
                         if (getBlock(x, y - 1, z) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,
-                                    nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z);
+                                    nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.ny);
                         }
                         if (getBlock(x, y + 1, z) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,
-                                    pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z);
+                                    pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.py);
                         }
                         if (getBlock(x, y, z - 1) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,
-                                    nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z);
+                                    nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.nz);
                         }
                         if (getBlock(x, y, z + 1) == BLOCK_AIR) {
                             copyTranslatedIntoVector(vertices, tmpGeometry,
-                                    pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z);
+                                    pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.pz);
                         }
                     }
                 }
