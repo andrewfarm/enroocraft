@@ -16,7 +16,6 @@
 #include <vector>
 
 #include "renderer.h"
-#include "shaderutils.h"
 #include "textureutils.h"
 
 static const float screenGeometry[] = {
@@ -36,17 +35,13 @@ Renderer::Renderer() {
     camYaw = 0;
     updateViewMatrix();
     
-    blockShaderProgram = loadShaders(
+    blockShaderProgram.load(
             "shaders/blockvertexshader.glsl",
             "shaders/blockfragmentshader.glsl");
-    u_MvpMatrixLocation = glGetUniformLocation(blockShaderProgram, "u_MvpMatrix");
-    u_TextureLocation   = glGetUniformLocation(blockShaderProgram, "u_Texture");
     
-    screenShaderProgram = loadShaders(
+    screenShaderProgram.load(
             "shaders/screenvertexshader.glsl",
             "shaders/screenfragmentshader.glsl");
-    u_ColorTextureLocation = glGetUniformLocation(screenShaderProgram, "u_ColorTexture");
-    u_DepthTextureLocation = glGetUniformLocation(screenShaderProgram, "u_DepthTexture");
     
     printf("Loading texture atlas\n");
     texture = loadTexture("res/textures.png");
@@ -150,11 +145,11 @@ void Renderer::render() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    glUseProgram(blockShaderProgram);
-    glUniformMatrix4fv(u_MvpMatrixLocation, 1, GL_FALSE, &mvpMatrix[0][0]);
+    blockShaderProgram.useProgram();
+    glUniformMatrix4fv(blockShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE, &mvpMatrix[0][0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glUniform1i(u_TextureLocation, 0);
+    glUniform1i(blockShaderProgram.uniforms["u_Texture"], 0);
 
     glBindVertexArray(worldMeshVertexArray);
     glDrawArrays(GL_TRIANGLES, 0, numVertices);
@@ -164,13 +159,13 @@ void Renderer::render() {
     
     glDisable(GL_DEPTH_TEST);
     
-    glUseProgram(screenShaderProgram);
+    screenShaderProgram.useProgram();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, renderedColorTexture);
-    glUniform1i(u_ColorTextureLocation, 0);
+    glUniform1i(blockShaderProgram.uniforms["u_ColorTexture"], 0);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, renderedDepthTexture);
-    glUniform1i(u_DepthTextureLocation, 1);
+    glUniform1i(blockShaderProgram.uniforms["u_DepthTexture"], 1);
     
     glBindVertexArray(screenVertexArray);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

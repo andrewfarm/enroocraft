@@ -13,6 +13,7 @@
 #include <glm/glm.hpp>
 
 #include "world.h"
+#include "shaderprogram.h"
 
 class Renderer {
     World *world;
@@ -26,13 +27,8 @@ class Renderer {
     glm::mat4 projectionMatrix;
     glm::mat4 mvpMatrix;
     
-    GLuint blockShaderProgram;
-    GLint u_MvpMatrixLocation;
-    GLint u_TextureLocation;
-    
-    GLuint screenShaderProgram;
-    GLint u_ColorTextureLocation;
-    GLint u_DepthTextureLocation;
+    ShaderProgram blockShaderProgram;
+    ShaderProgram screenShaderProgram;
     
     GLuint worldMeshVertexArray;
     GLuint worldMeshVertexBuffer;
