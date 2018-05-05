@@ -8,5 +8,5 @@ uniform sampler2D u_DepthTexture;
 out vec3 color;
 
 void main() {
-    color = vec3(v_UV, 0.0f);//texture(u_DepthTexture, v_UV).rgb;
+    color = vec3(pow(texture(u_DepthTexture, v_UV).r, 50.0));
 }

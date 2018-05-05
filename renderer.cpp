@@ -46,7 +46,7 @@ Renderer::Renderer() {
             "shaders/screenvertexshader.glsl",
             "shaders/screenfragmentshader.glsl");
     u_ColorTextureLocation = glGetUniformLocation(screenShaderProgram, "u_ColorTexture");
-    u_DepthTextureLocation = glGetUniformLocation(screenShaderProgram, "u-DepthTexture");
+    u_DepthTextureLocation = glGetUniformLocation(screenShaderProgram, "u_DepthTexture");
     
     printf("Loading texture atlas\n");
     texture = loadTexture("res/textures.png");
@@ -87,7 +87,7 @@ void Renderer::setSize(float width, float height) {
     
     glGenTextures(1, &renderedDepthTexture);
     glBindTexture(GL_TEXTURE_2D, renderedDepthTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  renderedDepthTexture, 0);
@@ -96,7 +96,7 @@ void Renderer::setSize(float width, float height) {
     glDrawBuffers(1, drawBuffers);
     
     // Always check that our framebuffer is ok
-    // framebuffer, are you ok?
+    // are you ok, framebuffer?
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if(status == GL_FRAMEBUFFER_COMPLETE) {
         printf("Framebuffer creation successful\n");
@@ -120,16 +120,16 @@ void Renderer::setWorld(World *world) {
     
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                          FACE_GEOMETRY_STRIDE * sizeof(float),
-                          (void *) (FACE_GEOMETRY_POSITION * sizeof(float)));
+            FACE_GEOMETRY_STRIDE * sizeof(float),
+            (void *) (FACE_GEOMETRY_POSITION * sizeof(float)));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                          FACE_GEOMETRY_STRIDE * sizeof(float),
-                          (void *) (FACE_GEOMETRY_NORMAL * sizeof(float)));
+            FACE_GEOMETRY_STRIDE * sizeof(float),
+            (void *) (FACE_GEOMETRY_NORMAL * sizeof(float)));
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-                          FACE_GEOMETRY_STRIDE * sizeof(float),
-                          (void *) (FACE_GEOMETRY_UV * sizeof(float)));
+            FACE_GEOMETRY_STRIDE * sizeof(float),
+            (void *) (FACE_GEOMETRY_UV * sizeof(float)));
 }
 
 float Renderer::getCamX() { return camPos[0]; }
@@ -142,14 +142,14 @@ void Renderer::setCamPitch(float pitch) { camPitch = pitch; }
 void Renderer::setCamYaw(float yaw) { camYaw = yaw; }
 
 void Renderer::render() {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glViewport(0, 0, width, height);
     
     glClearColor(0.8f, 0.95f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    
+
     glUseProgram(blockShaderProgram);
     glUniformMatrix4fv(u_MvpMatrixLocation, 1, GL_FALSE, &mvpMatrix[0][0]);
     glActiveTexture(GL_TEXTURE0);
@@ -162,6 +162,8 @@ void Renderer::render() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, width, height);
     
+    glDisable(GL_DEPTH_TEST);
+    
     glUseProgram(screenShaderProgram);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, renderedColorTexture);
@@ -171,7 +173,7 @@ void Renderer::render() {
     glUniform1i(u_DepthTextureLocation, 1);
     
     glBindVertexArray(screenVertexArray);
-//    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 void Renderer::updateViewMatrix() {
