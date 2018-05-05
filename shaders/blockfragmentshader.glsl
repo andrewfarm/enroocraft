@@ -3,9 +3,9 @@
 in vec3 v_Normal;
 in vec2 v_TexUV;
 
-out vec3 color;
-
 uniform sampler2D u_Texture;
+
+layout(location = 0) out vec3 color;
 
 void main() {
     vec4 texColor = texture(u_Texture, v_TexUV);

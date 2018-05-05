@@ -17,6 +17,8 @@
 class Renderer {
     World *world;
     
+    int width, height;
+    
     glm::vec3 camPos;
     float camPitch, camYaw;
     
@@ -24,15 +26,25 @@ class Renderer {
     glm::mat4 projectionMatrix;
     glm::mat4 mvpMatrix;
     
-    GLuint shaderProgram;
+    GLuint blockShaderProgram;
     GLint u_MvpMatrixLocation;
     GLint u_TextureLocation;
     
-    GLuint vertexArrayID;
-    GLuint vertexBuffer;
+    GLuint screenShaderProgram;
+    GLint u_ColorTextureLocation;
+    GLint u_DepthTextureLocation;
+    
+    GLuint worldMeshVertexArray;
+    GLuint worldMeshVertexBuffer;
     GLuint numVertices;
+    GLuint screenVertexArray;
+    GLuint screenVertexBuffer;
     
     GLuint texture;
+    
+    GLuint framebuffer;
+    GLuint renderedColorTexture;
+    GLuint renderedDepthTexture;
     
     void updateMvpMatrix();
     
