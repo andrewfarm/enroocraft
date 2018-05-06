@@ -138,7 +138,7 @@ static inline int mod(int a, int b) {
 
 blocktype World::getBlock(int x, int y, int z) {
     const std::pair<int, int> chunkKey(
-            floor((float) x / CHUNK_SIZE), floor((float) z / CHUNK_SIZE));
+            floorf((float) x / CHUNK_SIZE), floorf((float) z / CHUNK_SIZE));
     auto result = chunks.find(chunkKey);
     if (result == chunks.end()) {
         return BLOCK_NOT_LOADED;

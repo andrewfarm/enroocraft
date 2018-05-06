@@ -35,14 +35,14 @@ static const float crosshairGeometry[] = {0.0f, 0.0f};
 #define CROSSHAIR_GEOMETRY_VERTEX_COMPONENTS 2
 
 static const float selectionGeometry[] = {
-    -0.005f,  1.005f,  0.005f,
-     1.005f,  1.005f,  0.005f,
-     1.005f,  1.005f, -1.005f,
-    -0.005f,  1.005f, -1.005f,
-    -0.005f, -0.005f,  0.005f,
-     1.005f, -0.005f,  0.005f,
-     1.005f, -0.005f, -1.005f,
-    -0.005f, -0.005f, -1.005f,
+    -0.005f,  1.005f, -0.005f,
+     1.005f,  1.005f, -0.005f,
+     1.005f,  1.005f,  1.005f,
+    -0.005f,  1.005f,  1.005f,
+    -0.005f, -0.005f, -0.005f,
+     1.005f, -0.005f, -0.005f,
+     1.005f, -0.005f,  1.005f,
+    -0.005f, -0.005f,  1.005f,
 };
 
 static const unsigned char selectionIndices[] = {
@@ -57,6 +57,8 @@ Renderer::Renderer() {
     camPitch = 0;
     camYaw = 0;
     updateViewMatrix();
+    
+    drawSelectionCube = false;
     
     blockShaderProgram.load(
             "shaders/blockvertexshader.glsl",
@@ -114,8 +116,6 @@ Renderer::Renderer() {
     glGenBuffers(1, &selectionIndexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, selectionIndexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(selectionIndices), selectionIndices, GL_STATIC_DRAW);
-    
-    selectionModelMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 63.0f, -5.0f)); //TODO
 }
 
 void Renderer::setSize(float width, float height) {
@@ -194,6 +194,14 @@ void Renderer::setCamPos(float x, float y, float z) { camPos = glm::vec3(x, y, z
 void Renderer::setCamPitch(float pitch) { camPitch = pitch; }
 void Renderer::setCamYaw(float yaw) { camYaw = yaw; }
 
+void Renderer::setDrawSelectionCube(bool drawSelectionCube) {
+    this->drawSelectionCube = drawSelectionCube;
+}
+
+void Renderer::setSelectedBlock(int x, int y, int z) {
+    selectionModelMatrix = glm::translate(glm::mat4(), glm::vec3((float) x, (float) y, (float) z));
+}
+
 void Renderer::render() {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glViewport(0, 0, width, height);
@@ -214,14 +222,16 @@ void Renderer::render() {
     glBindVertexArray(worldMeshVertexArray);
     glDrawArrays(GL_TRIANGLES, 0, numVertices);
     
-    simpleShaderProgram.useProgram();
-    glUniformMatrix4fv(simpleShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE,
-            &(mvpMatrix * selectionModelMatrix)[0][0]);
-    glUniform3f(simpleShaderProgram.uniforms["u_Color"], 0.0f, 0.0f, 0.0f);
-    
-    glBindVertexArray(selectionVertexArray);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, selectionIndexBuffer);
-    glDrawElements(GL_LINES, 24, GL_UNSIGNED_BYTE, (void *) 0);
+    if (drawSelectionCube) {
+        simpleShaderProgram.useProgram();
+        glUniformMatrix4fv(simpleShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE,
+                &(mvpMatrix * selectionModelMatrix)[0][0]);
+        glUniform3f(simpleShaderProgram.uniforms["u_Color"], 0.0f, 0.0f, 0.0f);
+        
+        glBindVertexArray(selectionVertexArray);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, selectionIndexBuffer);
+        glDrawElements(GL_LINES, 24, GL_UNSIGNED_BYTE, (void *) 0);
+    }
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, width, height);

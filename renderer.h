@@ -27,6 +27,7 @@ class Renderer {
     glm::mat4 projectionMatrix;
     glm::mat4 mvpMatrix;
     
+    bool drawSelectionCube;
     glm::mat4 selectionModelMatrix;
     
     ShaderProgram blockShaderProgram;
@@ -66,6 +67,9 @@ public:
     void setCamPos(float x, float y, float z);
     void setCamPitch(float pitch);
     void setCamYaw(float yaw);
+    
+    void setDrawSelectionCube(bool drawSelected);
+    void setSelectedBlock(int x, int y, int z);
     
     void updateViewMatrix();
     

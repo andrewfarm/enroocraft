@@ -10,12 +10,14 @@
 #define controls_h
 
 #include "renderer.h"
+#include "world.h"
 
 #include <GLFW/glfw3.h>
 
 void updateControls(
         GLFWwindow *window,
         Renderer &renderer,
+        World &world,
         double *prevMouseX,
         double *prevMouseY,
         double deltaTime);

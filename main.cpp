@@ -29,8 +29,8 @@ int main(int argc, const char * argv[]) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     
-    const int WINDOW_WIDTH  = 800;
-    const int WINDOW_HEIGHT = 800;
+    const int WINDOW_WIDTH  = 500;
+    const int WINDOW_HEIGHT = 500;
     
     GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "enroocraft", NULL, NULL);
     if (window == NULL) {
@@ -69,7 +69,7 @@ int main(int argc, const char * argv[]) {
         end = std::chrono::high_resolution_clock::now();
         deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
         
-        updateControls(window, renderer, &prevMouseX, &prevMouseY, deltaTime);
+        updateControls(window, renderer, world, &prevMouseX, &prevMouseY, deltaTime);
         
         renderer.render();
         
