@@ -59,17 +59,17 @@ int main(int argc, const char * argv[]) {
     renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     renderer.setWorld(&world);
     
+    Controls controls(window, &renderer, &world);
+    
     std::chrono::high_resolution_clock::time_point start, end;
     double deltaTime;
     end = std::chrono::high_resolution_clock::now();
-    double prevMouseX, prevMouseY;
-    glfwGetCursorPos(window, &prevMouseX, &prevMouseX);
     do {
         start = end;
         end = std::chrono::high_resolution_clock::now();
         deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
         
-        updateControls(window, renderer, world, &prevMouseX, &prevMouseY, deltaTime);
+        controls.update(deltaTime);
         
         renderer.render();
         

@@ -14,12 +14,15 @@
 
 #include <GLFW/glfw3.h>
 
-void updateControls(
-        GLFWwindow *window,
-        Renderer &renderer,
-        World &world,
-        double *prevMouseX,
-        double *prevMouseY,
-        double deltaTime);
+class Controls {
+    GLFWwindow *window;
+    Renderer *renderer;
+    World *world;
+    double prevMouseX, prevMouseY;
+    
+public:
+    Controls(GLFWwindow *window, Renderer *renderer, World *world);
+    void update(double deltaTime);
+};
 
 #endif /* controls_h */

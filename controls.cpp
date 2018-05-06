@@ -29,33 +29,35 @@ static inline float fmodNeg(float a, float b) {
     return fmod(fmod(a, b) + b, b);
 }
 
-void updateControls(
-        GLFWwindow *window,
-        Renderer &renderer,
-        World &world,
-        double *prevMouseX,
-        double *prevMouseY,
-        double deltaTime) {
+Controls::Controls(GLFWwindow *window, Renderer *renderer, World *world) :
+window(window),
+renderer(renderer),
+world(world)
+{
+    glfwGetCursorPos(window, &prevMouseX, &prevMouseY);
+}
+
+void Controls::update(double deltaTime) {
     double mouseX, mouseY;
     glfwGetCursorPos(window, &mouseX, &mouseY);
     
-    float newYaw = renderer.getCamYaw() +
-            (LOOK_SPEED * deltaTime * float(*prevMouseX - mouseX));
+    float newYaw = renderer->getCamYaw() +
+    (LOOK_SPEED * deltaTime * float(prevMouseX - mouseX));
     newYaw = fmodNeg(newYaw, TWO_PI);
     
-    float newPitch = renderer.getCamPitch() +
-            (LOOK_SPEED * deltaTime * float(*prevMouseY - mouseY));
+    float newPitch = renderer->getCamPitch() +
+    (LOOK_SPEED * deltaTime * float(prevMouseY - mouseY));
     if (newPitch > HALF_PI) {
         newPitch = HALF_PI;
     } else if (newPitch < -HALF_PI) {
         newPitch = -HALF_PI;
     }
     
-    renderer.setCamYaw(newYaw);
-    renderer.setCamPitch(newPitch);
-    *prevMouseX = mouseX;
-    *prevMouseY = mouseY;
-
+    renderer->setCamYaw(newYaw);
+    renderer->setCamPitch(newPitch);
+    prevMouseX = mouseX;
+    prevMouseY = mouseY;
+    
     int directionX = 0, directionY = 0, directionZ = 0;
     if ((glfwGetKey(window, GLFW_KEY_A)     == GLFW_PRESS) ||
         (glfwGetKey(window, GLFW_KEY_LEFT)  == GLFW_PRESS)) {
@@ -82,25 +84,25 @@ void updateControls(
     float moveX = MOVE_SPEED * deltaTime * directionX;
     float moveY = MOVE_SPEED * deltaTime * directionY;
     float moveZ = MOVE_SPEED * deltaTime * directionZ;
-    float camYaw = renderer.getCamYaw();
+    float camYaw = renderer->getCamYaw();
     float sinYaw = sinf(camYaw);
     float cosYaw = cosf(camYaw);
-    renderer.setCamPos(
-        renderer.getCamX() + (moveX * cosYaw) + (moveZ * sinYaw),
-        renderer.getCamY() + moveY,
-        renderer.getCamZ() + (moveX * -sinYaw) + (moveZ * cosYaw));
-
-    renderer.updateViewMatrix();
+    renderer->setCamPos(
+            renderer->getCamX() + (moveX * cosYaw) + (moveZ * sinYaw),
+            renderer->getCamY() + moveY,
+            renderer->getCamZ() + (moveX * -sinYaw) + (moveZ * cosYaw));
     
-    renderer.setDrawSelectionCube(true);
-    renderer.setSelectedBlock(0, 63, -5);
+    renderer->updateViewMatrix();
+    
+    renderer->setDrawSelectionCube(true);
+    renderer->setSelectedBlock(0, 63, -5);
     
     // ray cast
     
-    float camX = renderer.getCamX();
-    float camY = renderer.getCamY();
-    float camZ = renderer.getCamZ();
-    float camPitch = renderer.getCamPitch();
+    float camX = renderer->getCamX();
+    float camY = renderer->getCamY();
+    float camZ = renderer->getCamZ();
+    float camPitch = renderer->getCamPitch();
     
     int initX = (int) floorf(camX); // if we don't use floor, negative values will round up
     int initY = (int) floorf(camY);
@@ -126,38 +128,38 @@ void updateControls(
     tMaxY *= tDeltaY;
     tMaxZ *= tDeltaZ;
     
-    blocktype intersectedBlock = world.getBlock(x, y, z);
+    blocktype intersectedBlock = world->getBlock(x, y, z);
     while ((intersectedBlock <= BLOCK_AIR) &&
            (distSq(initX, initY, initZ, x, y, z) <
-                    (MAX_SELECT_DISTANCE * MAX_SELECT_DISTANCE))) {
-        if (tMaxX < tMaxY) {
-            if (tMaxX < tMaxZ) {
-                x += stepX;
-                tMaxX += tDeltaX;
-            } else {
-                z += stepZ;
-                tMaxZ += tDeltaZ;
-            }
-        } else {
-            if (tMaxY < tMaxZ) {
-                y += stepY;
-                tMaxY += tDeltaY;
-            } else {
-                z += stepZ;
-                tMaxZ += tDeltaZ;
-            }
-        }
-        intersectedBlock = world.getBlock(x, y, z);
-    }
+            (MAX_SELECT_DISTANCE * MAX_SELECT_DISTANCE))) {
+               if (tMaxX < tMaxY) {
+                   if (tMaxX < tMaxZ) {
+                       x += stepX;
+                       tMaxX += tDeltaX;
+                   } else {
+                       z += stepZ;
+                       tMaxZ += tDeltaZ;
+                   }
+               } else {
+                   if (tMaxY < tMaxZ) {
+                       y += stepY;
+                       tMaxY += tDeltaY;
+                   } else {
+                       z += stepZ;
+                       tMaxZ += tDeltaZ;
+                   }
+               }
+               intersectedBlock = world->getBlock(x, y, z);
+           }
     if (intersectedBlock > BLOCK_AIR) {
-        renderer.setDrawSelectionCube(true);
-        renderer.setSelectedBlock(x, y, z);
+        renderer->setDrawSelectionCube(true);
+        renderer->setSelectedBlock(x, y, z);
         
         if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-            world.setBlock(x, y, z, BLOCK_AIR);
-            renderer.updateMesh(x, y, z);
+            world->setBlock(x, y, z, BLOCK_AIR);
+            renderer->updateMesh(x, y, z);
         }
     } else {
-        renderer.setDrawSelectionCube(false);
+        renderer->setDrawSelectionCube(false);
     }
 }
