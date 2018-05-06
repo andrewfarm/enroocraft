@@ -204,13 +204,31 @@ void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype
             (void *) (FACE_GEOMETRY_UV * sizeof(vertices[0])));
 }
 
-void Renderer::updateMesh(int x, int y, int z) {
-    int chunkX = (int) floor((float) x / CHUNK_SIZE);
-    int chunkZ = (int) floor((float) z / CHUNK_SIZE);
+void Renderer::updateMesh(int chunkX, int chunkZ) {
     const auto chunks = world->getChunks();
     const auto &chunkEntry = chunks->find(std::pair<int, int>(chunkX, chunkZ));
     if (chunkEntry != chunks->end()) {
         loadChunkMesh(chunkX, chunkZ, chunkEntry->second);
+    }
+}
+
+void Renderer::updateMesh(int x, int y, int z) {
+    int chunkX = (int) floor((float) x / CHUNK_SIZE);
+    int chunkZ = (int) floor((float) z / CHUNK_SIZE);
+    updateMesh(chunkX, chunkZ);
+    
+    //update adjacent chunks
+    int internalX = x - (chunkX * CHUNK_SIZE);
+    int internalZ = z - (chunkZ * CHUNK_SIZE);
+    if (internalX == 0) {
+        updateMesh(chunkX - 1, chunkZ);
+    } else if (internalX == CHUNK_SIZE - 1) {
+        updateMesh(chunkX + 1, chunkZ);
+    }
+    if (internalZ == 0) {
+        updateMesh(chunkX, chunkZ - 1);
+    } else if (internalZ == CHUNK_SIZE - 1) {
+        updateMesh(chunkX, chunkZ + 1);
     }
 }
 
