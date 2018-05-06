@@ -181,7 +181,6 @@ void Controls::update(double deltaTime) {
     int rightMouseButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
     if (rightMouseButtonStatus == GLFW_PRESS) {
         if (canPlaceBlock && (intersectedBlock > BLOCK_AIR)) {
-            printf("placing grass block at (%d, %d, %d)\n", prevX, prevY, prevZ);
             world->setBlock(prevX, prevY, prevZ, BLOCK_COBBLE);
             renderer->updateMesh(prevX, prevY, prevZ);
         }

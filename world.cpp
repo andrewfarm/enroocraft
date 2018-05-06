@@ -172,15 +172,14 @@ void World::setBlock(int x, int y, int z, blocktype block) {
     if (result != chunks.end()) {
         std::vector<blocktype> &chunk = result->second;
         int index = (y * CHUNK_SIZE * CHUNK_SIZE) + (mod(z, CHUNK_SIZE) * CHUNK_SIZE) + mod(x, CHUNK_SIZE);
-        if (index > chunk.size()) {
-            chunk.resize(index);
+        if (index + 1 > chunk.size()) {
+            chunk.resize(index + (CHUNK_SIZE * CHUNK_SIZE), BLOCK_AIR);
         }
         chunk[index] = block;
     }
 }
 
-std::vector<float> World::mesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
-    std::vector<float> vertices;
+void World::mesh(std::vector<float> &vertices, int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
     int internalX, internalY, internalZ;
     int index;
     int x, y, z;
@@ -230,7 +229,6 @@ std::vector<float> World::mesh(int chunkX, int chunkZ, const std::vector<blockty
             }
         }
     }
-    return vertices;
 }
 
 std::map<std::pair<int, int>, std::vector<blocktype>> *World::getChunks() {

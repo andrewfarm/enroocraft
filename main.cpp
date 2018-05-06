@@ -30,7 +30,7 @@ int main(int argc, const char * argv[]) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     
     const int WINDOW_WIDTH  = 800;
-    const int WINDOW_HEIGHT = 600;
+    const int WINDOW_HEIGHT = 500;
     
     GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "enroocraft", NULL, NULL);
     if (window == NULL) {

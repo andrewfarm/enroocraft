@@ -176,7 +176,8 @@ void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype
     }
     
     // generate mesh
-    std::vector<float> vertices = world->mesh(chunkX, chunkZ, blocks);
+    std::vector<float> vertices;
+    world->mesh(vertices, chunkX, chunkZ, blocks);
     
     // send vertex data to OpenGL
     GLsizei vertexCount = (GLsizei) vertices.size();
@@ -276,9 +277,8 @@ void Renderer::render() {
     glBindTexture(GL_TEXTURE_2D, texture);
     glUniform1i(blockShaderProgram.uniforms["u_Texture"], 0);
     
-    mesh chunkMesh;
     for (auto &chunkMeshEntry : chunkMeshes) {
-        chunkMesh = chunkMeshEntry.second;
+        mesh &chunkMesh = chunkMeshEntry.second;
         glBindVertexArray(chunkMesh.vertexArrayID);
         glDrawArrays(GL_TRIANGLES, 0, chunkMesh.vertexCount);
     }
