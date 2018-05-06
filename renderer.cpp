@@ -122,7 +122,7 @@ void Renderer::setSize(float width, float height) {
     this->width  = width;
     this->height = height;
     
-    projectionMatrix = glm::perspective(glm::radians(60.0f), height / width, 0.1f, 1000.0f);
+    projectionMatrix = glm::perspective(glm::radians(60.0f), width / height, 0.1f, 1000.0f);
     updateMvpMatrix();
     
     printf("Creating textured framebuffer\n");
