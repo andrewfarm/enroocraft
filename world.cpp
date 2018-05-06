@@ -121,10 +121,24 @@ void World::genesis(int chunkX, int chunkZ) {
         }
     }
     chunkdata.reserve(maxHeight * CHUNK_SIZE * CHUNK_SIZE);
+    blocktype block;
+    int depth;
     for (int y = 0; y <= maxHeight; y++) {
         for (int z = 0; z < CHUNK_SIZE; z++) {
             for (int x = 0; x < CHUNK_SIZE; x++) {
-                chunkdata.push_back((y < heightmap[z][x]) ? BLOCK_GRASS : BLOCK_AIR);
+                depth = heightmap[z][x] - y;
+                if (y == 0) {
+                    block = BLOCK_BEDROCK;
+                } else if (depth < 0) {
+                    block = BLOCK_AIR;
+                } else if (depth == 0) {
+                    block = BLOCK_GRASS;
+                } else if (depth <= 2) {
+                    block = BLOCK_DIRT;
+                } else {
+                    block = BLOCK_STONE;
+                }
+                chunkdata.push_back(block);
             }
         }
     }

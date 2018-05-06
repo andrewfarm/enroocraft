@@ -17,8 +17,11 @@
 typedef int16_t blocktype;
 
 const blocktype BLOCK_NOT_LOADED = -1;
-const blocktype BLOCK_AIR   = 0;
-const blocktype BLOCK_GRASS = 1;
+const blocktype BLOCK_AIR        = 0;
+const blocktype BLOCK_GRASS      = 1;
+const blocktype BLOCK_DIRT       = 2;
+const blocktype BLOCK_STONE      = 3;
+const blocktype BLOCK_BEDROCK    = 4;
 
 const int TEXTURE_ATLAS_SIZE = 8;
 const float TEXTURE_ATLAS_SIZE_RECIPROCAL = 1.0f / TEXTURE_ATLAS_SIZE;
@@ -29,7 +32,10 @@ struct block_textures {
 
 const block_textures textureNumbers[] = {
     {-1, -1, -1, -1, -1, -1}, //AIR
-    {2, 2, 3, 1, 2, 2}        //GRASS
+    {2, 2, 3, 1, 2, 2}, //GRASS
+    {3, 3, 3, 3, 3, 3}, //DIRT
+    {4, 4, 4, 4, 4, 4}, //STONE
+    {5, 5, 5, 5, 5, 5}, //BEDROCK
 };
 
 #define FACE_GEOMETRY_LENGTH 48
