@@ -32,7 +32,8 @@ static inline float fmodNeg(float a, float b) {
 Controls::Controls(GLFWwindow *window, Renderer *renderer, World *world) :
 window(window),
 renderer(renderer),
-world(world)
+world(world),
+canBreakBlock(true)
 {
     glfwGetCursorPos(window, &prevMouseX, &prevMouseY);
 }
@@ -154,12 +155,18 @@ void Controls::update(double deltaTime) {
     if (intersectedBlock > BLOCK_AIR) {
         renderer->setDrawSelectionCube(true);
         renderer->setSelectedBlock(x, y, z);
-        
-        if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+    } else {
+        renderer->setDrawSelectionCube(false);
+    }
+    
+    int mouseButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+    if (mouseButtonStatus == GLFW_PRESS) {
+        if (canBreakBlock && (intersectedBlock > BLOCK_AIR)) {
             world->setBlock(x, y, z, BLOCK_AIR);
             renderer->updateMesh(x, y, z);
         }
-    } else {
-        renderer->setDrawSelectionCube(false);
+        canBreakBlock = false;
+    } else if (mouseButtonStatus == GLFW_RELEASE) {
+        canBreakBlock = true;
     }
 }
