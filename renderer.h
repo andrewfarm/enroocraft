@@ -81,6 +81,8 @@ public:
     
     void updateViewMatrix();
     
+    void updateMesh(int x, int y, int z);
+    
     void render();
 };
 

@@ -150,6 +150,17 @@ blocktype World::getBlock(int x, int y, int z) {
     }
     return chunk[index];
 }
+// TODO reduce reuse of code is setBlock and getBlock
+void World::setBlock(int x, int y, int z, blocktype block) {
+    const std::pair<int, int> chunkKey(
+            floorf((float) x / CHUNK_SIZE), floorf((float) z / CHUNK_SIZE));
+    auto result = chunks.find(chunkKey);
+    if (result != chunks.end()) {
+        std::vector<blocktype> &chunk = result->second;
+        int index = (y * CHUNK_SIZE * CHUNK_SIZE) + (mod(z, CHUNK_SIZE) * CHUNK_SIZE) + mod(x, CHUNK_SIZE);
+        chunk[index] = block;
+    }
+}
 
 std::vector<float> World::mesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
     std::vector<float> vertices;

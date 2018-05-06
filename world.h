@@ -45,6 +45,7 @@ class World {
 public:
     void genesis(int chunkX, int chunkZ);
     blocktype getBlock(int x, int y, int z);
+    void setBlock(int x, int y, int z, blocktype block);
     std::vector<float> mesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks);
     std::map<std::pair<int, int>, std::vector<blocktype>> *getChunks();
 };
