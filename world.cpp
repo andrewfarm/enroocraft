@@ -151,60 +151,60 @@ blocktype World::getBlock(int x, int y, int z) {
     return chunk[index];
 }
 
-std::vector<float>World::mesh() {
+std::vector<float> World::mesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
     std::vector<float> vertices;
     int internalX, internalY, internalZ;
-    int chunkHeight;
     int index;
     int x, y, z;
     float tmpGeometry[FACE_GEOMETRY_LENGTH];
     block_textures tex;
-    for (auto& entry : chunks) {
-        // entry.first is the cunk (x, z) coordinates, entry.second is the chunk data
-        printf("Meshing chunk (%d, %d)\n", entry.first.first, entry.first.second);
-        chunkHeight = (int) ceil((float) entry.second.size() / (CHUNK_SIZE * CHUNK_SIZE));
-        for (internalY = 0; internalY < chunkHeight; internalY++) {
-            for (internalZ = 0; internalZ < CHUNK_SIZE; internalZ++) {
-                for (internalX = 0; internalX < CHUNK_SIZE; internalX++) {
-                    index = (internalY * CHUNK_SIZE * CHUNK_SIZE) +
-                            (internalZ * CHUNK_SIZE) +
-                            internalX;
-                    if ((index < entry.second.size()) &&
-                        (entry.second[index] > BLOCK_AIR)) {
-                        
-                        x = entry.first.first  * CHUNK_SIZE + internalX;
-                        y = internalY;
-                        z = entry.first.second * CHUNK_SIZE + internalZ;
-                        tex = textureNumbers[entry.second[index]];
-                        
-                        if (getBlock(x - 1, y, z) == BLOCK_AIR) {
-                            copyTranslatedIntoVector(vertices, tmpGeometry,
-                                    nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.nx);
-                        }
-                        if (getBlock(x + 1, y, z) == BLOCK_AIR) {
-                            copyTranslatedIntoVector(vertices, tmpGeometry,
-                                    pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.px);
-                        }
-                        if (getBlock(x, y - 1, z) == BLOCK_AIR) {
-                            copyTranslatedIntoVector(vertices, tmpGeometry,
-                                    nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.ny);
-                        }
-                        if (getBlock(x, y + 1, z) == BLOCK_AIR) {
-                            copyTranslatedIntoVector(vertices, tmpGeometry,
-                                    pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.py);
-                        }
-                        if (getBlock(x, y, z - 1) == BLOCK_AIR) {
-                            copyTranslatedIntoVector(vertices, tmpGeometry,
-                                    nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.nz);
-                        }
-                        if (getBlock(x, y, z + 1) == BLOCK_AIR) {
-                            copyTranslatedIntoVector(vertices, tmpGeometry,
-                                    pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.pz);
-                        }
+    printf("Meshing chunk (%d, %d)\n", chunkX, chunkZ);
+    int chunkHeight = (int) ceil((float) blocks.size() / (CHUNK_SIZE * CHUNK_SIZE));
+    for (internalY = 0; internalY < chunkHeight; internalY++) {
+        for (internalZ = 0; internalZ < CHUNK_SIZE; internalZ++) {
+            for (internalX = 0; internalX < CHUNK_SIZE; internalX++) {
+                index = (internalY * CHUNK_SIZE * CHUNK_SIZE) +
+                        (internalZ * CHUNK_SIZE) +
+                        internalX;
+                if ((index < blocks.size()) &&
+                    (blocks[index] > BLOCK_AIR)) {
+                    
+                    x = chunkX * CHUNK_SIZE + internalX;
+                    y = internalY;
+                    z = chunkZ * CHUNK_SIZE + internalZ;
+                    tex = textureNumbers[blocks[index]];
+                    
+                    if (getBlock(x - 1, y, z) == BLOCK_AIR) {
+                        copyTranslatedIntoVector(vertices, tmpGeometry,
+                                nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.nx);
+                    }
+                    if (getBlock(x + 1, y, z) == BLOCK_AIR) {
+                        copyTranslatedIntoVector(vertices, tmpGeometry,
+                                pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.px);
+                    }
+                    if (getBlock(x, y - 1, z) == BLOCK_AIR) {
+                        copyTranslatedIntoVector(vertices, tmpGeometry,
+                                nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.ny);
+                    }
+                    if (getBlock(x, y + 1, z) == BLOCK_AIR) {
+                        copyTranslatedIntoVector(vertices, tmpGeometry,
+                                pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.py);
+                    }
+                    if (getBlock(x, y, z - 1) == BLOCK_AIR) {
+                        copyTranslatedIntoVector(vertices, tmpGeometry,
+                                nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.nz);
+                    }
+                    if (getBlock(x, y, z + 1) == BLOCK_AIR) {
+                        copyTranslatedIntoVector(vertices, tmpGeometry,
+                                pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.pz);
                     }
                 }
             }
         }
     }
     return vertices;
+}
+
+std::map<std::pair<int, int>, std::vector<blocktype>> *World::getChunks() {
+    return &chunks;
 }

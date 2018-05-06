@@ -79,8 +79,6 @@ Renderer::Renderer() {
     printf("Loading texture atlas\n");
     texture = loadTexture("res/textures.png");
     
-    glGenVertexArrays(1, &worldMeshVertexArray);
-    
     glGenVertexArrays(1, &screenVertexArray);
     glBindVertexArray(screenVertexArray);
     
@@ -158,31 +156,62 @@ void Renderer::setSize(float width, float height) {
     }
 }
 
+void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
+    // get pointer to mesh struct, and create new one if necessary
+    const auto chunkMeshEntry = chunkMeshes.find(std::pair<int, int>(chunkX, chunkZ));
+    mesh *p_chunkMesh;
+    int previousVertexCount = -1;
+    if (chunkMeshEntry != chunkMeshes.end()) {
+        // mesh for this chunk already exists
+        p_chunkMesh = &(chunkMeshEntry->second);
+        previousVertexCount = p_chunkMesh->vertexCount;
+    } else {
+        // create new mesh entry along with vertex array and buffer
+        mesh temp;
+        std::pair<int, int> key(chunkX, chunkZ);
+        chunkMeshes.insert(std::make_pair(key, temp));
+        p_chunkMesh = &(chunkMeshes.find(key)->second);
+        glGenVertexArrays(1, &(p_chunkMesh->vertexArrayID));
+        glGenBuffers(1, &(p_chunkMesh->bufferID));
+    }
+    
+    // generate mesh
+    std::vector<float> vertices = world->mesh(chunkX, chunkZ, blocks);
+    
+    // send vertex data to OpenGL
+    GLsizei vertexCount = (GLsizei) vertices.size();
+    p_chunkMesh->vertexCount = vertexCount;
+    glBindVertexArray(p_chunkMesh->vertexArrayID);
+    glBindBuffer(GL_ARRAY_BUFFER, p_chunkMesh->bufferID);
+    if (vertexCount > previousVertexCount) {
+        // increase size of buffer
+        glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(vertices[0]), &vertices[0], GL_DYNAMIC_DRAW);
+    } else {
+        // update existing buffer
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(vertices[0]), &vertices[0]);
+    }
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+            FACE_GEOMETRY_STRIDE * sizeof(vertices[0]),
+            (void *) (FACE_GEOMETRY_POSITION * sizeof(vertices[0])));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+            FACE_GEOMETRY_STRIDE * sizeof(vertices[0]),
+            (void *) (FACE_GEOMETRY_NORMAL * sizeof(vertices[0])));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+            FACE_GEOMETRY_STRIDE * sizeof(vertices[0]),
+            (void *) (FACE_GEOMETRY_UV * sizeof(vertices[0])));
+}
+
 void Renderer::setWorld(World *world) {
     this->world = world;
     
-    std::vector<float> vertices = world->mesh();
-    const GLfloat *g_vertex_buffer_data = &vertices[0];
-    numVertices = (GLuint) vertices.size();
-    
-    glBindVertexArray(worldMeshVertexArray);
-    
-    glGenBuffers(1, &worldMeshVertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, worldMeshVertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(vertices[0]), g_vertex_buffer_data, GL_STATIC_DRAW);
-    
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(float),
-            (void *) (FACE_GEOMETRY_POSITION * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(float),
-            (void *) (FACE_GEOMETRY_NORMAL * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(float),
-            (void *) (FACE_GEOMETRY_UV * sizeof(float)));
+    const auto chunks = world->getChunks();
+    const auto chunksEnd = chunks->end();
+    for (auto chunkEntry = chunks->begin(); chunkEntry != chunksEnd; ++chunkEntry) {
+        loadChunkMesh(chunkEntry->first.first, chunkEntry->first.second, chunkEntry->second);
+    }
 }
 
 float Renderer::getCamX() { return camPos[0]; }
@@ -218,9 +247,13 @@ void Renderer::render() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glUniform1i(blockShaderProgram.uniforms["u_Texture"], 0);
-
-    glBindVertexArray(worldMeshVertexArray);
-    glDrawArrays(GL_TRIANGLES, 0, numVertices);
+    
+    mesh chunkMesh;
+    for (auto &chunkMeshEntry : chunkMeshes) {
+        chunkMesh = chunkMeshEntry.second;
+        glBindVertexArray(chunkMesh.vertexArrayID);
+        glDrawArrays(GL_TRIANGLES, 0, chunkMesh.vertexCount);
+    }
     
     if (drawSelectionCube) {
         simpleShaderProgram.useProgram();

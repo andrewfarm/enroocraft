@@ -9,11 +9,19 @@
 #ifndef renderer_h
 #define renderer_h
 
+#include <map>
+
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
 #include "world.h"
 #include "shaderprogram.h"
+
+struct mesh {
+    GLsizei vertexCount;
+    GLuint bufferID;
+    GLuint vertexArrayID;
+};
 
 class Renderer {
     World *world;
@@ -35,9 +43,7 @@ class Renderer {
     ShaderProgram crosshairShaderProgram;
     ShaderProgram simpleShaderProgram;
     
-    GLuint worldMeshVertexArray;
-    GLuint worldMeshVertexBuffer;
-    GLuint numVertices;
+    std::map<std::pair<int, int>, mesh> chunkMeshes;
     GLuint screenVertexArray;
     GLuint screenVertexBuffer;
     GLuint crosshairVertexArray;
@@ -53,6 +59,8 @@ class Renderer {
     GLuint renderedDepthTexture;
     
     void updateMvpMatrix();
+    
+    void loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks);
     
 public:
     Renderer();
