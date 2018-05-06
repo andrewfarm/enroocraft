@@ -172,6 +172,9 @@ void World::setBlock(int x, int y, int z, blocktype block) {
     if (result != chunks.end()) {
         std::vector<blocktype> &chunk = result->second;
         int index = (y * CHUNK_SIZE * CHUNK_SIZE) + (mod(z, CHUNK_SIZE) * CHUNK_SIZE) + mod(x, CHUNK_SIZE);
+        if (index > chunk.size()) {
+            chunk.resize(index);
+        }
         chunk[index] = block;
     }
 }

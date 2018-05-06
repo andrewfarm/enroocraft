@@ -19,7 +19,7 @@ class Controls {
     Renderer *renderer;
     World *world;
     double prevMouseX, prevMouseY;
-    bool canBreakBlock;
+    bool canBreakBlock, canPlaceBlock;
     
 public:
     Controls(GLFWwindow *window, Renderer *renderer, World *world);

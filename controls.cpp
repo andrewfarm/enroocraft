@@ -33,7 +33,8 @@ Controls::Controls(GLFWwindow *window, Renderer *renderer, World *world) :
 window(window),
 renderer(renderer),
 world(world),
-canBreakBlock(true)
+canBreakBlock(true),
+canPlaceBlock(true)
 {
     glfwGetCursorPos(window, &prevMouseX, &prevMouseY);
 }
@@ -113,6 +114,10 @@ void Controls::update(double deltaTime) {
     int y = initY;
     int z = initZ;
     
+    int prevX;
+    int prevY;
+    int prevZ;
+    
     int stepX = (camYaw < M_PI) ? -1 : 1;
     int stepY = (camPitch < 0) ? -1 : 1;
     int stepZ = ((camYaw < HALF_PI) || (camYaw > (3 * HALF_PI))) ? -1 : 1;
@@ -132,26 +137,29 @@ void Controls::update(double deltaTime) {
     blocktype intersectedBlock = world->getBlock(x, y, z);
     while ((intersectedBlock <= BLOCK_AIR) &&
            (distSq(initX, initY, initZ, x, y, z) <
-            (MAX_SELECT_DISTANCE * MAX_SELECT_DISTANCE))) {
-               if (tMaxX < tMaxY) {
-                   if (tMaxX < tMaxZ) {
-                       x += stepX;
-                       tMaxX += tDeltaX;
-                   } else {
-                       z += stepZ;
-                       tMaxZ += tDeltaZ;
-                   }
-               } else {
-                   if (tMaxY < tMaxZ) {
-                       y += stepY;
-                       tMaxY += tDeltaY;
-                   } else {
-                       z += stepZ;
-                       tMaxZ += tDeltaZ;
-                   }
-               }
-               intersectedBlock = world->getBlock(x, y, z);
-           }
+                    (MAX_SELECT_DISTANCE * MAX_SELECT_DISTANCE))) {
+        prevX = x;
+        prevY = y;
+        prevZ = z;
+        if (tMaxX < tMaxY) {
+            if (tMaxX < tMaxZ) {
+                x += stepX;
+                tMaxX += tDeltaX;
+            } else {
+                z += stepZ;
+                tMaxZ += tDeltaZ;
+            }
+        } else {
+            if (tMaxY < tMaxZ) {
+                y += stepY;
+                tMaxY += tDeltaY;
+            } else {
+                z += stepZ;
+                tMaxZ += tDeltaZ;
+            }
+        }
+        intersectedBlock = world->getBlock(x, y, z);
+    }
     if (intersectedBlock > BLOCK_AIR) {
         renderer->setDrawSelectionCube(true);
         renderer->setSelectedBlock(x, y, z);
@@ -159,14 +167,26 @@ void Controls::update(double deltaTime) {
         renderer->setDrawSelectionCube(false);
     }
     
-    int mouseButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-    if (mouseButtonStatus == GLFW_PRESS) {
+    int leftMouseButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+    if (leftMouseButtonStatus == GLFW_PRESS) {
         if (canBreakBlock && (intersectedBlock > BLOCK_AIR)) {
             world->setBlock(x, y, z, BLOCK_AIR);
             renderer->updateMesh(x, y, z);
         }
         canBreakBlock = false;
-    } else if (mouseButtonStatus == GLFW_RELEASE) {
+    } else if (leftMouseButtonStatus == GLFW_RELEASE) {
         canBreakBlock = true;
+    }
+    
+    int rightMouseButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+    if (rightMouseButtonStatus == GLFW_PRESS) {
+        if (canPlaceBlock && (intersectedBlock > BLOCK_AIR)) {
+            printf("placing grass block at (%d, %d, %d)\n", prevX, prevY, prevZ);
+            world->setBlock(prevX, prevY, prevZ, BLOCK_COBBLE);
+            renderer->updateMesh(prevX, prevY, prevZ);
+        }
+        canPlaceBlock = false;
+    } else if (rightMouseButtonStatus == GLFW_RELEASE) {
+        canPlaceBlock = true;
     }
 }

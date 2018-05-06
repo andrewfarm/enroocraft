@@ -21,7 +21,9 @@ const blocktype BLOCK_AIR        = 0;
 const blocktype BLOCK_GRASS      = 1;
 const blocktype BLOCK_DIRT       = 2;
 const blocktype BLOCK_STONE      = 3;
-const blocktype BLOCK_BEDROCK    = 4;
+const blocktype BLOCK_COBBLE     = 4;
+const blocktype BLOCK_GLASS      = 5;
+const blocktype BLOCK_BEDROCK    = 6;
 
 const int TEXTURE_ATLAS_SIZE = 8;
 const float TEXTURE_ATLAS_SIZE_RECIPROCAL = 1.0f / TEXTURE_ATLAS_SIZE;
@@ -35,6 +37,8 @@ const block_textures textureNumbers[] = {
     {2, 2, 3, 1, 2, 2}, //GRASS
     {3, 3, 3, 3, 3, 3}, //DIRT
     {4, 4, 4, 4, 4, 4}, //STONE
+    {6, 6, 6, 6, 6, 6}, //COBBLE
+    {7, 7, 7, 7, 7, 7}, //GLASS
     {5, 5, 5, 5, 5, 5}, //BEDROCK
 };
 
