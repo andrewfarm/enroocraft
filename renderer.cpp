@@ -300,6 +300,7 @@ void Renderer::render() {
     glViewport(0, 0, width, height);
     
     glDisable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
     
     screenShaderProgram.useProgram();
     glActiveTexture(GL_TEXTURE0);
@@ -313,6 +314,7 @@ void Renderer::render() {
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glEnable(GL_BLEND);
     glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR);
     
     crosshairShaderProgram.useProgram();
