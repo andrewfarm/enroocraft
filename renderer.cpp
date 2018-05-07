@@ -176,33 +176,34 @@ void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype
     }
     
     // generate mesh
-    std::vector<float> vertices;
-    world->mesh(vertices, chunkX, chunkZ, blocks);
+    std::vector<float> meshData;
+    world->mesh(meshData, chunkX, chunkZ, blocks);
     
     // send vertex data to OpenGL
-    GLsizei vertexCount = (GLsizei) vertices.size();
+    GLsizei meshDataLength = (GLsizei) meshData.size();
+    GLsizei vertexCount = meshDataLength / FACE_GEOMETRY_STRIDE;
     p_chunkMesh->vertexCount = vertexCount;
     glBindVertexArray(p_chunkMesh->vertexArrayID);
     glBindBuffer(GL_ARRAY_BUFFER, p_chunkMesh->bufferID);
     if (vertexCount > previousVertexCount) {
         // increase size of buffer
-        glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(vertices[0]), &vertices[0], GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, meshDataLength * sizeof(meshData[0]), &meshData[0], GL_DYNAMIC_DRAW);
     } else {
         // update existing buffer
-        glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(vertices[0]), &vertices[0]);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, meshDataLength * sizeof(meshData[0]), &meshData[0]);
     }
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(vertices[0]),
-            (void *) (FACE_GEOMETRY_POSITION * sizeof(vertices[0])));
+            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
+            (void *) (FACE_GEOMETRY_POSITION * sizeof(meshData[0])));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(vertices[0]),
-            (void *) (FACE_GEOMETRY_NORMAL * sizeof(vertices[0])));
+            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
+            (void *) (FACE_GEOMETRY_NORMAL * sizeof(meshData[0])));
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(vertices[0]),
-            (void *) (FACE_GEOMETRY_UV * sizeof(vertices[0])));
+            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
+            (void *) (FACE_GEOMETRY_UV * sizeof(meshData[0])));
 }
 
 void Renderer::updateMesh(int chunkX, int chunkZ) {

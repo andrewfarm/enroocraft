@@ -179,7 +179,7 @@ void World::setBlock(int x, int y, int z, blocktype block) {
     }
 }
 
-void World::mesh(std::vector<float> &vertices, int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
+void World::mesh(std::vector<float> &meshData, int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
     int internalX, internalY, internalZ;
     int index;
     int x, y, z;
@@ -202,27 +202,27 @@ void World::mesh(std::vector<float> &vertices, int chunkX, int chunkZ, const std
                     tex = textureNumbers[blocks[index]];
                     
                     if (getBlock(x - 1, y, z) == BLOCK_AIR) {
-                        copyTranslatedIntoVector(vertices, tmpGeometry,
+                        copyTranslatedIntoVector(meshData, tmpGeometry,
                                 nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.nx);
                     }
                     if (getBlock(x + 1, y, z) == BLOCK_AIR) {
-                        copyTranslatedIntoVector(vertices, tmpGeometry,
+                        copyTranslatedIntoVector(meshData, tmpGeometry,
                                 pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.px);
                     }
                     if (getBlock(x, y - 1, z) == BLOCK_AIR) {
-                        copyTranslatedIntoVector(vertices, tmpGeometry,
+                        copyTranslatedIntoVector(meshData, tmpGeometry,
                                 nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.ny);
                     }
                     if (getBlock(x, y + 1, z) == BLOCK_AIR) {
-                        copyTranslatedIntoVector(vertices, tmpGeometry,
+                        copyTranslatedIntoVector(meshData, tmpGeometry,
                                 pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.py);
                     }
                     if (getBlock(x, y, z - 1) == BLOCK_AIR) {
-                        copyTranslatedIntoVector(vertices, tmpGeometry,
+                        copyTranslatedIntoVector(meshData, tmpGeometry,
                                 nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.nz);
                     }
                     if (getBlock(x, y, z + 1) == BLOCK_AIR) {
-                        copyTranslatedIntoVector(vertices, tmpGeometry,
+                        copyTranslatedIntoVector(meshData, tmpGeometry,
                                 pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.pz);
                     }
                 }
