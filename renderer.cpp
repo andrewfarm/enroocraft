@@ -270,7 +270,8 @@ void Renderer::render() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_CULL_FACE);
-    glDisable(GL_BLEND);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     blockShaderProgram.useProgram();
     glUniformMatrix4fv(blockShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE, &mvpMatrix[0][0]);
@@ -312,7 +313,6 @@ void Renderer::render() {
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glEnable(GL_BLEND);
     glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR);
     
     crosshairShaderProgram.useProgram();
