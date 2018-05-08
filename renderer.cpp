@@ -18,6 +18,62 @@
 #include "renderer.h"
 #include "textureutils.h"
 
+static const float nxGeometry[] = {
+    0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+};
+static const float pxGeometry[] = {
+    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+    1.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
+    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+};
+static const float nyGeometry[] = {
+    1.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   1.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   0.0f, 1.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 0.0f,
+};
+static const float pyGeometry[] = {
+    1.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+};
+static const float nzGeometry[] = {
+    0.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 0.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 1.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f,
+};
+static const float pzGeometry[] = {
+    1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+};
+
+#define FACE_GEOMETRY_LENGTH 48
+#define FACE_GEOMETRY_STRIDE 8
+
+#define FACE_GEOMETRY_POSITION 0
+#define FACE_GEOMETRY_NORMAL   3
+#define FACE_GEOMETRY_UV       6
+
 static const float screenGeometry[] = {
      1.0f,  1.0f,   1.0f, 1.0f,
     -1.0f,  1.0f,   0.0f, 1.0f,
@@ -156,6 +212,110 @@ void Renderer::setSize(float width, float height) {
     }
 }
 
+static void translateGeometry(float *geometry, size_t length,
+                              float x, float y, float z) {
+    for (int i = FACE_GEOMETRY_POSITION; i < length; i += FACE_GEOMETRY_STRIDE) {
+        geometry[i]     += x;
+        geometry[i + 1] += y;
+        geometry[i + 2] += z;
+    }
+}
+
+static void translateUV(float *geometry, size_t length, int textureNumber) {
+    for (int i = FACE_GEOMETRY_UV; i < length; i += FACE_GEOMETRY_STRIDE) {
+        geometry[i] = (geometry[i] + (textureNumber % TEXTURE_ATLAS_SIZE)) *
+        TEXTURE_ATLAS_SIZE_RECIPROCAL;
+        geometry[i + 1] = (geometry[i + 1] + (textureNumber / TEXTURE_ATLAS_SIZE)) *
+        TEXTURE_ATLAS_SIZE_RECIPROCAL;
+    }
+}
+
+static void copyTranslatedIntoVector(
+        std::vector<float> &dest,
+        float *temp,
+        const float *src,
+        size_t length,
+        float translateX,
+        float translateY,
+        float translateZ,
+        int textureNumber) {
+    memcpy(temp, src, length * sizeof(*src));
+    translateGeometry(temp, length, translateX, translateY, translateZ);
+    translateUV(temp, length, textureNumber);
+    size_t size = dest.size();
+    dest.resize(size + length);
+    for (size_t i = 0; i < length; i++) {
+        dest[size + i] = temp[i];
+    }
+}
+
+static bool shouldMeshFace(int adjacentBlock, bool opaque) {
+    return  (adjacentBlock == BLOCK_AIR) ||
+    ((adjacentBlock > BLOCK_AIR) &&
+     opaque &&
+     (!(blockInfos[adjacentBlock].opaque)));
+}
+
+void Renderer::mesh(
+        std::vector<float> &opaqueMeshData,
+        std::vector<float> &transparentMeshData,
+        int chunkX,
+        int chunkZ,
+        const std::vector<blocktype> &blocks)
+{
+    int internalX, internalY, internalZ;
+    int index;
+    int x, y, z;
+    float tmpGeometry[FACE_GEOMETRY_LENGTH];
+    blockinfo binfo;
+    printf("Meshing chunk (%d, %d)\n", chunkX, chunkZ);
+    int chunkHeight = (int) ceil((float) blocks.size() / (CHUNK_SIZE * CHUNK_SIZE));
+    for (internalY = 0; internalY < chunkHeight; internalY++) {
+        for (internalZ = 0; internalZ < CHUNK_SIZE; internalZ++) {
+            for (internalX = 0; internalX < CHUNK_SIZE; internalX++) {
+                index = (internalY * CHUNK_SIZE * CHUNK_SIZE) +
+                (internalZ * CHUNK_SIZE) +
+                internalX;
+                if ((index < blocks.size()) &&
+                    (blocks[index] > BLOCK_AIR)) {
+                    
+                    x = chunkX * CHUNK_SIZE + internalX;
+                    y = internalY;
+                    z = chunkZ * CHUNK_SIZE + internalZ;
+                    binfo = blockInfos[blocks[index]];
+                    std::vector<float> &targetVector =
+                    binfo.opaque ? opaqueMeshData : transparentMeshData;
+                    
+                    if (shouldMeshFace(world->getBlock(x - 1, y, z), binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nx);
+                    }
+                    if (shouldMeshFace(world->getBlock(x + 1, y, z), binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_px);
+                    }
+                    if (shouldMeshFace(world->getBlock(x, y - 1, z), binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_ny);
+                    }
+                    if (shouldMeshFace(world->getBlock(x, y + 1, z), binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_py);
+                    }
+                    if (shouldMeshFace(world->getBlock(x, y, z - 1), binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nz);
+                    }
+                    if (shouldMeshFace(world->getBlock(x, y, z + 1), binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_pz);
+                    }
+                }
+            }
+        }
+    }
+}
+
 void loadMesh(int prevVertexCount, std::vector<float> &meshData, mesh &mesh) {
     GLsizei meshSize = (GLsizei) meshData.size();
     GLsizei vertexCount = meshSize / FACE_GEOMETRY_STRIDE;
@@ -211,7 +371,7 @@ void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype
     // generate mesh
     std::vector<float> opaqueMeshData;
     std::vector<float> transparentMeshData;
-    world->mesh(opaqueMeshData, transparentMeshData, chunkX, chunkZ, blocks);
+    mesh(opaqueMeshData, transparentMeshData, chunkX, chunkZ, blocks);
     
     // send vertex data to OpenGL
     loadMesh(prevOpaqueVertexCount, opaqueMeshData, p_chunkMesh->opaqueMesh);

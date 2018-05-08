@@ -52,13 +52,6 @@ static inline bool isSolid(int block) {
     return (block > 0) && blockInfos[block].solid;
 }
 
-#define FACE_GEOMETRY_LENGTH 48
-#define FACE_GEOMETRY_STRIDE 8
-
-#define FACE_GEOMETRY_POSITION 0
-#define FACE_GEOMETRY_NORMAL   3
-#define FACE_GEOMETRY_UV       6
-
 class World {
     std::map<std::pair<int, int>, std::vector<blocktype>> chunks;
     
@@ -66,12 +59,6 @@ public:
     void genesis(int chunkX, int chunkZ);
     blocktype getBlock(int x, int y, int z);
     void setBlock(int x, int y, int z, blocktype block);
-    void mesh(
-            std::vector<float> &opaqueMeshData,
-            std::vector<float> &transparentMeshData,
-            int chunkX,
-            int chunkZ,
-            const std::vector<blocktype> &blocks);
     std::map<std::pair<int, int>, std::vector<blocktype>> *getChunks();
 };
 

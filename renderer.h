@@ -65,6 +65,12 @@ class Renderer {
     
     void updateMvpMatrix();
     
+    void mesh(
+            std::vector<float> &opaqueMeshData,
+            std::vector<float> &transparentMeshData,
+            int chunkX,
+            int chunkZ,
+            const std::vector<blocktype> &blocks);
     void loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks);
     
 public:
