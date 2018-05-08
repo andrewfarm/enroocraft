@@ -22,24 +22,25 @@ const blocktype BLOCK_GRASS      = 1;
 const blocktype BLOCK_DIRT       = 2;
 const blocktype BLOCK_STONE      = 3;
 const blocktype BLOCK_COBBLE     = 4;
-const blocktype BLOCK_GLASS      = 5;
-const blocktype BLOCK_BEDROCK    = 6;
+const blocktype BLOCK_BEDROCK    = 5;
+const blocktype BLOCK_GLASS      = 6;
 
 const int TEXTURE_ATLAS_SIZE = 8;
 const float TEXTURE_ATLAS_SIZE_RECIPROCAL = 1.0f / TEXTURE_ATLAS_SIZE;
 
-struct block_textures {
-    int nx, px, ny, py, nz, pz;
+struct blockinfo {
+    int tex_nx, tex_px, tex_ny, tex_py, tex_nz, tex_pz;
+    bool opaque;
 };
 
-const block_textures textureNumbers[] = {
-    {-1, -1, -1, -1, -1, -1}, //AIR
-    {2, 2, 3, 1, 2, 2}, //GRASS
-    {3, 3, 3, 3, 3, 3}, //DIRT
-    {4, 4, 4, 4, 4, 4}, //STONE
-    {6, 6, 6, 6, 6, 6}, //COBBLE
-    {7, 7, 7, 7, 7, 7}, //GLASS
-    {5, 5, 5, 5, 5, 5}, //BEDROCK
+const blockinfo blockInfos[] = {
+    {-1, -1, -1, -1, -1, -1, false}, //AIR
+    {2, 2, 3, 1, 2, 2, true},  //GRASS
+    {3, 3, 3, 3, 3, 3, true},  //DIRT
+    {4, 4, 4, 4, 4, 4, true},  //STONE
+    {6, 6, 6, 6, 6, 6, true},  //COBBLE
+    {5, 5, 5, 5, 5, 5, true},  //BEDROCK
+    {7, 7, 7, 7, 7, 7, false}, //GLASS
 };
 
 #define FACE_GEOMETRY_LENGTH 48
@@ -56,7 +57,12 @@ public:
     void genesis(int chunkX, int chunkZ);
     blocktype getBlock(int x, int y, int z);
     void setBlock(int x, int y, int z, blocktype block);
-    void mesh(std::vector<float> &vertices, int chunkX, int chunkZ, const std::vector<blocktype> &blocks);
+    void mesh(
+            std::vector<float> &opaqueMeshData,
+            std::vector<float> &transparentMeshData,
+            int chunkX,
+            int chunkZ,
+            const std::vector<blocktype> &blocks);
     std::map<std::pair<int, int>, std::vector<blocktype>> *getChunks();
 };
 

@@ -156,42 +156,21 @@ void Renderer::setSize(float width, float height) {
     }
 }
 
-void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
-    // get pointer to mesh struct, and create new one if necessary
-    const auto chunkMeshEntry = chunkMeshes.find(std::pair<int, int>(chunkX, chunkZ));
-    mesh *p_chunkMesh;
-    int previousVertexCount = -1;
-    if (chunkMeshEntry != chunkMeshes.end()) {
-        // mesh for this chunk already exists
-        p_chunkMesh = &(chunkMeshEntry->second);
-        previousVertexCount = p_chunkMesh->vertexCount;
-    } else {
-        // create new mesh entry along with vertex array and buffer
-        mesh temp;
-        std::pair<int, int> key(chunkX, chunkZ);
-        chunkMeshes.insert(std::make_pair(key, temp));
-        p_chunkMesh = &(chunkMeshes.find(key)->second);
-        glGenVertexArrays(1, &(p_chunkMesh->vertexArrayID));
-        glGenBuffers(1, &(p_chunkMesh->bufferID));
-    }
+void loadMesh(int prevVertexCount, std::vector<float> &meshData, mesh &mesh) {
+    GLsizei meshSize = (GLsizei) meshData.size();
+    GLsizei vertexCount = meshSize / FACE_GEOMETRY_STRIDE;
+    mesh.vertexCount = vertexCount;
     
-    // generate mesh
-    std::vector<float> meshData;
-    world->mesh(meshData, chunkX, chunkZ, blocks);
-    
-    // send vertex data to OpenGL
-    GLsizei meshDataLength = (GLsizei) meshData.size();
-    GLsizei vertexCount = meshDataLength / FACE_GEOMETRY_STRIDE;
-    p_chunkMesh->vertexCount = vertexCount;
-    glBindVertexArray(p_chunkMesh->vertexArrayID);
-    glBindBuffer(GL_ARRAY_BUFFER, p_chunkMesh->bufferID);
-    if (vertexCount > previousVertexCount) {
+    glBindVertexArray(mesh.vertexArrayID);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.bufferID);
+    if (vertexCount > prevVertexCount) {
         // increase size of buffer
-        glBufferData(GL_ARRAY_BUFFER, meshDataLength * sizeof(meshData[0]), &meshData[0], GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, meshSize * sizeof(meshData[0]), &meshData[0], GL_DYNAMIC_DRAW);
     } else {
         // update existing buffer
-        glBufferSubData(GL_ARRAY_BUFFER, 0, meshDataLength * sizeof(meshData[0]), &meshData[0]);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, meshSize * sizeof(meshData[0]), &meshData[0]);
     }
+    
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
             FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
@@ -204,6 +183,39 @@ void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
             FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
             (void *) (FACE_GEOMETRY_UV * sizeof(meshData[0])));
+}
+
+void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
+    // get pointer to mesh struct, and create new one if necessary
+    const auto chunkMeshEntry = chunkMeshes.find(std::pair<int, int>(chunkX, chunkZ));
+    chunkMesh *p_chunkMesh;
+    int prevOpaqueVertexCount = -1;
+    int prevTransparentVertexCount = -1;
+    if (chunkMeshEntry != chunkMeshes.end()) {
+        // mesh for this chunk already exists
+        p_chunkMesh = &(chunkMeshEntry->second);
+        prevOpaqueVertexCount = p_chunkMesh->opaqueMesh.vertexCount;
+        prevTransparentVertexCount = p_chunkMesh->transparentMesh.vertexCount;
+    } else {
+        // create new mesh entry along with vertex array and buffer
+        chunkMesh temp;
+        std::pair<int, int> key(chunkX, chunkZ);
+        chunkMeshes.insert(std::make_pair(key, temp));
+        p_chunkMesh = &(chunkMeshes.find(key)->second);
+        glGenVertexArrays(1, &(p_chunkMesh->opaqueMesh.vertexArrayID));
+        glGenVertexArrays(1, &(p_chunkMesh->transparentMesh.vertexArrayID));
+        glGenBuffers(1, &(p_chunkMesh->opaqueMesh.bufferID));
+        glGenBuffers(1, &(p_chunkMesh->transparentMesh.bufferID));
+    }
+    
+    // generate mesh
+    std::vector<float> opaqueMeshData;
+    std::vector<float> transparentMeshData;
+    world->mesh(opaqueMeshData, transparentMeshData, chunkX, chunkZ, blocks);
+    
+    // send vertex data to OpenGL
+    loadMesh(prevOpaqueVertexCount, opaqueMeshData, p_chunkMesh->opaqueMesh);
+    loadMesh(prevTransparentVertexCount, transparentMeshData, p_chunkMesh->transparentMesh);
 }
 
 void Renderer::updateMesh(int chunkX, int chunkZ) {
@@ -280,9 +292,15 @@ void Renderer::render() {
     glUniform1i(blockShaderProgram.uniforms["u_Texture"], 0);
     
     for (auto &chunkMeshEntry : chunkMeshes) {
-        mesh &chunkMesh = chunkMeshEntry.second;
-        glBindVertexArray(chunkMesh.vertexArrayID);
-        glDrawArrays(GL_TRIANGLES, 0, chunkMesh.vertexCount);
+        chunkMesh &chunkMesh = chunkMeshEntry.second;
+        glBindVertexArray(chunkMesh.opaqueMesh.vertexArrayID);
+        glDrawArrays(GL_TRIANGLES, 0, chunkMesh.opaqueMesh.vertexCount);
+    }
+    
+    for (auto &chunkMeshEntry : chunkMeshes) {
+        chunkMesh &chunkMesh = chunkMeshEntry.second;
+        glBindVertexArray(chunkMesh.transparentMesh.vertexArrayID);
+        glDrawArrays(GL_TRIANGLES, 0, chunkMesh.transparentMesh.vertexCount);
     }
     
     if (drawSelectionCube) {

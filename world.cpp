@@ -179,12 +179,25 @@ void World::setBlock(int x, int y, int z, blocktype block) {
     }
 }
 
-void World::mesh(std::vector<float> &meshData, int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
+static bool shouldMeshFace(int adjacentBlock, bool opaque) {
+    return  (adjacentBlock == BLOCK_AIR) ||
+                ((adjacentBlock > BLOCK_AIR) &&
+                    opaque &&
+                    (!(blockInfos[adjacentBlock].opaque)));
+}
+
+void World::mesh(
+        std::vector<float> &opaqueMeshData,
+        std::vector<float> &transparentMeshData,
+        int chunkX,
+        int chunkZ,
+        const std::vector<blocktype> &blocks)
+{
     int internalX, internalY, internalZ;
     int index;
     int x, y, z;
     float tmpGeometry[FACE_GEOMETRY_LENGTH];
-    block_textures tex;
+    blockinfo binfo;
     printf("Meshing chunk (%d, %d)\n", chunkX, chunkZ);
     int chunkHeight = (int) ceil((float) blocks.size() / (CHUNK_SIZE * CHUNK_SIZE));
     for (internalY = 0; internalY < chunkHeight; internalY++) {
@@ -199,31 +212,33 @@ void World::mesh(std::vector<float> &meshData, int chunkX, int chunkZ, const std
                     x = chunkX * CHUNK_SIZE + internalX;
                     y = internalY;
                     z = chunkZ * CHUNK_SIZE + internalZ;
-                    tex = textureNumbers[blocks[index]];
+                    binfo = blockInfos[blocks[index]];
+                    std::vector<float> &targetVector =
+                            binfo.opaque ? opaqueMeshData : transparentMeshData;
                     
-                    if (getBlock(x - 1, y, z) == BLOCK_AIR) {
-                        copyTranslatedIntoVector(meshData, tmpGeometry,
-                                nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.nx);
+                    if (shouldMeshFace(getBlock(x - 1, y, z), binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nx);
                     }
-                    if (getBlock(x + 1, y, z) == BLOCK_AIR) {
-                        copyTranslatedIntoVector(meshData, tmpGeometry,
-                                pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.px);
+                    if (shouldMeshFace(getBlock(x + 1, y, z), binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_px);
                     }
-                    if (getBlock(x, y - 1, z) == BLOCK_AIR) {
-                        copyTranslatedIntoVector(meshData, tmpGeometry,
-                                nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.ny);
+                    if (shouldMeshFace(getBlock(x, y - 1, z), binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_ny);
                     }
-                    if (getBlock(x, y + 1, z) == BLOCK_AIR) {
-                        copyTranslatedIntoVector(meshData, tmpGeometry,
-                                pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.py);
+                    if (shouldMeshFace(getBlock(x, y + 1, z), binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_py);
                     }
-                    if (getBlock(x, y, z - 1) == BLOCK_AIR) {
-                        copyTranslatedIntoVector(meshData, tmpGeometry,
-                                nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.nz);
+                    if (shouldMeshFace(getBlock(x, y, z - 1), binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nz);
                     }
-                    if (getBlock(x, y, z + 1) == BLOCK_AIR) {
-                        copyTranslatedIntoVector(meshData, tmpGeometry,
-                                pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, tex.pz);
+                    if (shouldMeshFace(getBlock(x, y, z + 1), binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_pz);
                     }
                 }
             }

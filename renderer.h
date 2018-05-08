@@ -23,6 +23,11 @@ struct mesh {
     GLuint vertexArrayID;
 };
 
+struct chunkMesh {
+    mesh opaqueMesh;
+    mesh transparentMesh;
+};
+
 class Renderer {
     World *world;
     
@@ -43,7 +48,7 @@ class Renderer {
     ShaderProgram crosshairShaderProgram;
     ShaderProgram simpleShaderProgram;
     
-    std::map<std::pair<int, int>, mesh> chunkMeshes;
+    std::map<std::pair<int, int>, chunkMesh> chunkMeshes;
     GLuint screenVertexArray;
     GLuint screenVertexBuffer;
     GLuint crosshairVertexArray;
