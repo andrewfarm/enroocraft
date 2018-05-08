@@ -135,7 +135,7 @@ void Controls::update(double deltaTime) {
     tMaxZ *= tDeltaZ;
     
     blocktype intersectedBlock = world->getBlock(x, y, z);
-    while ((intersectedBlock <= BLOCK_AIR) &&
+    while (!isSolid(intersectedBlock) &&
            (distSq(initX, initY, initZ, x, y, z) <
                     (MAX_SELECT_DISTANCE * MAX_SELECT_DISTANCE))) {
         prevX = x;
@@ -160,7 +160,7 @@ void Controls::update(double deltaTime) {
         }
         intersectedBlock = world->getBlock(x, y, z);
     }
-    if (intersectedBlock > BLOCK_AIR) {
+    if (isSolid(intersectedBlock)) {
         renderer->setDrawSelectionCube(true);
         renderer->setSelectedBlock(x, y, z);
     } else {
@@ -169,7 +169,7 @@ void Controls::update(double deltaTime) {
     
     int leftMouseButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
     if (leftMouseButtonStatus == GLFW_PRESS) {
-        if (canBreakBlock && (intersectedBlock > BLOCK_AIR)) {
+        if (canBreakBlock && isSolid(intersectedBlock)) {
             world->setBlock(x, y, z, BLOCK_AIR);
             renderer->updateMesh(x, y, z);
         }
@@ -180,7 +180,7 @@ void Controls::update(double deltaTime) {
     
     int rightMouseButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
     if (rightMouseButtonStatus == GLFW_PRESS) {
-        if (canPlaceBlock && (intersectedBlock > BLOCK_AIR)) {
+        if (canPlaceBlock && isSolid(intersectedBlock)) {
             world->setBlock(prevX, prevY, prevZ, BLOCK_GLASS);
             renderer->updateMesh(prevX, prevY, prevZ);
         }

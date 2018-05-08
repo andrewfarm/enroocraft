@@ -32,20 +32,25 @@ const float TEXTURE_ATLAS_SIZE_RECIPROCAL = 1.0f / TEXTURE_ATLAS_SIZE;
 
 struct blockinfo {
     int tex_nx, tex_px, tex_ny, tex_py, tex_nz, tex_pz;
+    bool solid;
     bool opaque;
 };
 
 const blockinfo blockInfos[] = {
-    {-1, -1, -1, -1, -1, -1, false}, //AIR
-    {2, 2, 3, 1, 2, 2, true},  //GRASS
-    {3, 3, 3, 3, 3, 3, true},  //DIRT
-    {4, 4, 4, 4, 4, 4, true},  //STONE
-    {6, 6, 6, 6, 6, 6, true},  //COBBLE
-    {5, 5, 5, 5, 5, 5, true},  //BEDROCK
-    {7, 7, 7, 7, 7, 7, false}, //GLASS
-    {8, 8, 8, 8, 8, 8, false}, //WATER
-    {9, 9, 9, 9, 9, 9, true},  //SAND
+    {-1, -1, -1, -1, -1, -1, false, false}, //AIR
+    {2, 2, 3, 1, 2, 2, true,  true},  //GRASS
+    {3, 3, 3, 3, 3, 3, true,  true},  //DIRT
+    {4, 4, 4, 4, 4, 4, true,  true},  //STONE
+    {6, 6, 6, 6, 6, 6, true,  true},  //COBBLE
+    {5, 5, 5, 5, 5, 5, true,  true},  //BEDROCK
+    {7, 7, 7, 7, 7, 7, true,  false}, //GLASS
+    {8, 8, 8, 8, 8, 8, false, false}, //WATER
+    {9, 9, 9, 9, 9, 9, true,  true},  //SAND
 };
+
+static inline bool isSolid(int block) {
+    return (block > 0) && blockInfos[block].solid;
+}
 
 #define FACE_GEOMETRY_LENGTH 48
 #define FACE_GEOMETRY_STRIDE 8

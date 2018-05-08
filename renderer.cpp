@@ -297,11 +297,13 @@ void Renderer::render() {
         glDrawArrays(GL_TRIANGLES, 0, chunkMesh.opaqueMesh.vertexCount);
     }
     
+    glDepthMask(GL_FALSE);
     for (auto &chunkMeshEntry : chunkMeshes) {
         chunkMesh &chunkMesh = chunkMeshEntry.second;
         glBindVertexArray(chunkMesh.transparentMesh.vertexArrayID);
         glDrawArrays(GL_TRIANGLES, 0, chunkMesh.transparentMesh.vertexCount);
     }
+    glDepthMask(GL_TRUE);
     
     if (drawSelectionCube) {
         simpleShaderProgram.useProgram();
