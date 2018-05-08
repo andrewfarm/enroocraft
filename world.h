@@ -24,6 +24,8 @@ const blocktype BLOCK_STONE      = 3;
 const blocktype BLOCK_COBBLE     = 4;
 const blocktype BLOCK_BEDROCK    = 5;
 const blocktype BLOCK_GLASS      = 6;
+const blocktype BLOCK_WATER      = 7;
+const blocktype BLOCK_SAND       = 8;
 
 const int TEXTURE_ATLAS_SIZE = 8;
 const float TEXTURE_ATLAS_SIZE_RECIPROCAL = 1.0f / TEXTURE_ATLAS_SIZE;
@@ -41,6 +43,8 @@ const blockinfo blockInfos[] = {
     {6, 6, 6, 6, 6, 6, true},  //COBBLE
     {5, 5, 5, 5, 5, 5, true},  //BEDROCK
     {7, 7, 7, 7, 7, 7, false}, //GLASS
+    {8, 8, 8, 8, 8, 8, false}, //WATER
+    {9, 9, 9, 9, 9, 9, true},  //SAND
 };
 
 #define FACE_GEOMETRY_LENGTH 48

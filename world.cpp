@@ -100,21 +100,22 @@ static void copyTranslatedIntoVector(
     }
 }
 
+#define WATER_LEVEL 64
 void World::genesis(int chunkX, int chunkZ) {
     printf("Generating chunk (%d, %d)\n", chunkX, chunkZ);
     std::vector<blocktype> chunkdata;
     
     noise::module::Perlin noiseModule;
-    int maxHeight = 0;
+    int maxHeight = WATER_LEVEL; // start at water level
     int heightmap[CHUNK_SIZE][CHUNK_SIZE];
     int height;
     for (int z = 0; z < CHUNK_SIZE; z++) {
         for (int x = 0; x < CHUNK_SIZE; x++) {
-            heightmap[z][x] = height = 64 + (int) (noiseModule.GetValue(
+            heightmap[z][x] = height = WATER_LEVEL + (int) (noiseModule.GetValue(
                     (chunkX * CHUNK_SIZE + x) * 0.01 + 0.5,
                     0.5,
                     (chunkZ * CHUNK_SIZE + z) * 0.01 + 0.5)
-                    * 16.0);
+                    * 28.0);
             if (height > maxHeight) {
                 maxHeight = height;
             }
@@ -130,11 +131,11 @@ void World::genesis(int chunkX, int chunkZ) {
                 if (y == 0) {
                     block = BLOCK_BEDROCK;
                 } else if (depth < 0) {
-                    block = BLOCK_AIR;
+                    block = (y < WATER_LEVEL) ? BLOCK_WATER : BLOCK_AIR;
                 } else if (depth == 0) {
-                    block = BLOCK_GRASS;
+                    block = (heightmap[z][x] < WATER_LEVEL + 1) ? BLOCK_SAND : BLOCK_GRASS;
                 } else if (depth <= 2) {
-                    block = BLOCK_DIRT;
+                    block = (heightmap[z][x] < WATER_LEVEL + 1) ? BLOCK_SAND : BLOCK_DIRT;
                 } else {
                     block = BLOCK_STONE;
                 }
