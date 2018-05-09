@@ -249,11 +249,13 @@ static void copyTranslatedIntoVector(
     }
 }
 
-static bool shouldMeshFace(int adjacentBlock, bool opaque) {
-    return  (adjacentBlock == BLOCK_AIR) ||
-    ((adjacentBlock > BLOCK_AIR) &&
-     opaque &&
-     (!(blockInfos[adjacentBlock].opaque)));
+static bool shouldMeshFace(int adjacentBlock, int thisBlock, bool thisBlockOpaque) {
+//    return  (adjacentBlock == BLOCK_AIR) ||
+//    ((adjacentBlock > BLOCK_AIR) &&
+//     opaque &&
+//     (!(blockInfos[adjacentBlock].opaque)));
+    return  (adjacentBlock >= BLOCK_AIR) &&
+            (thisBlockOpaque ? !(blockInfos[adjacentBlock].opaque) : (adjacentBlock != thisBlock));
 }
 
 void Renderer::mesh(
@@ -267,6 +269,7 @@ void Renderer::mesh(
     int index;
     int x, y, z;
     float tmpGeometry[FACE_GEOMETRY_LENGTH];
+    blocktype block;
     blockinfo binfo;
     printf("Meshing chunk (%d, %d)\n", chunkX, chunkZ);
     int chunkHeight = (int) ceil((float) blocks.size() / (CHUNK_SIZE * CHUNK_SIZE));
@@ -274,39 +277,40 @@ void Renderer::mesh(
         for (internalZ = 0; internalZ < CHUNK_SIZE; internalZ++) {
             for (internalX = 0; internalX < CHUNK_SIZE; internalX++) {
                 index = (internalY * CHUNK_SIZE * CHUNK_SIZE) +
-                (internalZ * CHUNK_SIZE) +
-                internalX;
+                        (internalZ * CHUNK_SIZE) +
+                        internalX;
                 if ((index < blocks.size()) &&
                     (blocks[index] > BLOCK_AIR)) {
                     
+                    block = blocks[index];
                     x = chunkX * CHUNK_SIZE + internalX;
                     y = internalY;
                     z = chunkZ * CHUNK_SIZE + internalZ;
-                    binfo = blockInfos[blocks[index]];
+                    binfo = blockInfos[block];
                     std::vector<float> &targetVector =
                     binfo.opaque ? opaqueMeshData : transparentMeshData;
                     
-                    if (shouldMeshFace(world->getBlock(x - 1, y, z), binfo.opaque)) {
+                    if (shouldMeshFace(world->getBlock(x - 1, y, z), block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
                                 nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nx);
                     }
-                    if (shouldMeshFace(world->getBlock(x + 1, y, z), binfo.opaque)) {
+                    if (shouldMeshFace(world->getBlock(x + 1, y, z), block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
                                 pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_px);
                     }
-                    if (shouldMeshFace(world->getBlock(x, y - 1, z), binfo.opaque)) {
+                    if (shouldMeshFace(world->getBlock(x, y - 1, z), block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
                                 nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_ny);
                     }
-                    if (shouldMeshFace(world->getBlock(x, y + 1, z), binfo.opaque)) {
+                    if (shouldMeshFace(world->getBlock(x, y + 1, z), block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
                                 pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_py);
                     }
-                    if (shouldMeshFace(world->getBlock(x, y, z - 1), binfo.opaque)) {
+                    if (shouldMeshFace(world->getBlock(x, y, z - 1), block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
                                 nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nz);
                     }
-                    if (shouldMeshFace(world->getBlock(x, y, z + 1), binfo.opaque)) {
+                    if (shouldMeshFace(world->getBlock(x, y, z + 1), block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
                                 pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_pz);
                     }
