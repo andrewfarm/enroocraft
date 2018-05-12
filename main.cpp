@@ -49,8 +49,8 @@ int main(int argc, const char * argv[]) {
     }
     
     World world;
-    for (int z = -8; z < 8; z++) {
-        for (int x = -8; x < 8; x++) {
+    for (int z = -4; z < 4; z++) {
+        for (int x = -4; x < 4; x++) {
             world.genesis(x, z);
         }
     }

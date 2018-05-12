@@ -328,35 +328,59 @@ void Renderer::mesh(
                         }
                     }
                     
+                    // negative x
                     if (shouldMeshFace(kernel[0][1][1], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
                                 nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nx,
-                                0.0f, 0.0f, 0.0f, 0.0f);
+                                vertexAO(aoKernel[0][1][0], aoKernel[0][2][1], aoKernel[0][2][0]),
+                                vertexAO(aoKernel[0][2][1], aoKernel[0][1][2], aoKernel[0][2][2]),
+                                vertexAO(aoKernel[0][1][2], aoKernel[0][0][1], aoKernel[0][0][2]),
+                                vertexAO(aoKernel[0][0][1], aoKernel[0][1][0], aoKernel[0][0][0]));
                     }
+                    // positive x
                     if (shouldMeshFace(kernel[2][1][1], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
                                 pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_px,
-                                0.0f, 0.0f, 0.0f, 0.0f);
+                                vertexAO(aoKernel[2][1][2], aoKernel[2][2][1], aoKernel[2][2][2]),
+                                vertexAO(aoKernel[2][2][1], aoKernel[2][1][0], aoKernel[2][2][0]),
+                                vertexAO(aoKernel[2][1][0], aoKernel[2][0][1], aoKernel[2][0][0]),
+                                vertexAO(aoKernel[2][0][1], aoKernel[2][1][2], aoKernel[2][0][2]));
                     }
+                    // negative y
                     if (shouldMeshFace(kernel[1][0][1], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
                                 nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_ny,
-                                0.0f, 0.0f, 0.0f, 0.0f);
+                                vertexAO(aoKernel[0][0][1], aoKernel[1][0][2], aoKernel[0][0][2]),
+                                vertexAO(aoKernel[1][0][2], aoKernel[2][0][1], aoKernel[2][0][2]),
+                                vertexAO(aoKernel[2][0][1], aoKernel[1][0][0], aoKernel[2][0][0]),
+                                vertexAO(aoKernel[1][0][0], aoKernel[0][0][1], aoKernel[0][0][0]));
                     }
+                    // positive y
                     if (shouldMeshFace(kernel[1][2][1], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
                                 pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_py,
-                                0.0f, 0.0f, 0.0f, 0.0f);
+                                vertexAO(aoKernel[0][2][1], aoKernel[1][2][0], aoKernel[0][2][0]),
+                                vertexAO(aoKernel[1][2][0], aoKernel[2][2][1], aoKernel[2][2][0]),
+                                vertexAO(aoKernel[2][2][1], aoKernel[1][2][2], aoKernel[2][2][2]),
+                                vertexAO(aoKernel[1][2][2], aoKernel[0][2][1], aoKernel[0][2][2]));
                     }
+                    // negative z
                     if (shouldMeshFace(kernel[1][1][0], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
                                 nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nz,
-                                0.0f, 0.0f, 0.0f, 0.0f);
+                                vertexAO(aoKernel[2][1][0], aoKernel[1][2][0], aoKernel[2][2][0]),
+                                vertexAO(aoKernel[1][2][0], aoKernel[0][1][0], aoKernel[0][2][0]),
+                                vertexAO(aoKernel[0][1][0], aoKernel[1][0][0], aoKernel[0][0][0]),
+                                vertexAO(aoKernel[1][0][0], aoKernel[2][1][0], aoKernel[2][0][0]));
                     }
+                    // positive z
                     if (shouldMeshFace(kernel[1][1][2], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
                                 pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_pz,
-                                0.0f, 0.0f, 0.0f, 0.0f);
+                                vertexAO(aoKernel[0][1][2], aoKernel[1][2][2], aoKernel[0][2][2]),
+                                vertexAO(aoKernel[1][2][2], aoKernel[2][1][2], aoKernel[2][2][2]),
+                                vertexAO(aoKernel[2][1][2], aoKernel[1][0][2], aoKernel[2][0][2]),
+                                vertexAO(aoKernel[1][0][2], aoKernel[0][1][2], aoKernel[0][0][2]));
                     }
                 }
             }
@@ -391,6 +415,10 @@ void loadMesh(int prevVertexCount, std::vector<float> &meshData, mesh &mesh) {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
             FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
             (void *) (FACE_GEOMETRY_UV * sizeof(meshData[0])));
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE,
+            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
+            (void *) (FACE_GEOMETRY_AO * sizeof(meshData[0])));
 }
 
 void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
