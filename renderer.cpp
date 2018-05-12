@@ -19,60 +19,61 @@
 #include "textureutils.h"
 
 static const float nxGeometry[] = {
-    0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
-    0.0f, 0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
-    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+    0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,   0.0f,
+    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,   0.0f,
 };
 static const float pxGeometry[] = {
-    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
-    1.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,   0.0f,
+    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    1.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,   0.0f,
 };
 static const float nyGeometry[] = {
-    1.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   1.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 1.0f,
-    0.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 1.0f,
-    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 0.0f,
+    1.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 0.0f,   0.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 0.0f,   0.0f,
 };
 static const float pyGeometry[] = {
-    1.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
-    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
-    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
-    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+    1.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f,   0.0f,
+    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f,   0.0f,
 };
 static const float nzGeometry[] = {
-    0.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 0.0f,
-    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f,
-    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 1.0f,
-    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f,
-    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 0.0f,   0.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f,   0.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f,   0.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f,   0.0f,
 };
 static const float pzGeometry[] = {
-    1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
-    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+    1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   0.0f,
+    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   0.0f,
 };
 
-#define FACE_GEOMETRY_LENGTH 48
-#define FACE_GEOMETRY_STRIDE 8
+#define FACE_GEOMETRY_STRIDE 9
+#define FACE_GEOMETRY_LENGTH (FACE_GEOMETRY_STRIDE * 6)
 
 #define FACE_GEOMETRY_POSITION 0
 #define FACE_GEOMETRY_NORMAL   3
 #define FACE_GEOMETRY_UV       6
+#define FACE_GEOMETRY_AO       8
 
 static const float screenGeometry[] = {
      1.0f,  1.0f,   1.0f, 1.0f,
@@ -212,6 +213,7 @@ void Renderer::setSize(float width, float height) {
     }
 }
 
+//TODO inline?
 static void translateGeometry(float *geometry, size_t length,
                               float x, float y, float z) {
     for (int i = FACE_GEOMETRY_POSITION; i < length; i += FACE_GEOMETRY_STRIDE) {
@@ -230,6 +232,19 @@ static void translateUV(float *geometry, size_t length, int textureNumber) {
     }
 }
 
+// ambient occlusion values are for vertices clockwise from top left
+static void setAO(float *geometry, float ao1, float ao2, float ao3, float ao4) {
+    geometry[FACE_GEOMETRY_STRIDE * 1 + FACE_GEOMETRY_AO] = ao1;
+    geometry[FACE_GEOMETRY_STRIDE * 5 + FACE_GEOMETRY_AO] = ao1;
+    
+    geometry[FACE_GEOMETRY_AO] = ao2;
+    
+    geometry[FACE_GEOMETRY_STRIDE * 2 + FACE_GEOMETRY_AO] = ao3;
+    geometry[FACE_GEOMETRY_STRIDE * 4 + FACE_GEOMETRY_AO] = ao3;
+    
+    geometry[FACE_GEOMETRY_STRIDE * 3 + FACE_GEOMETRY_AO] = ao4;
+}
+
 static void copyTranslatedIntoVector(
         std::vector<float> &dest,
         float *temp,
@@ -238,10 +253,12 @@ static void copyTranslatedIntoVector(
         float translateX,
         float translateY,
         float translateZ,
-        int textureNumber) {
+        int textureNumber,
+        float ao1, float ao2, float ao3, float ao4) {
     memcpy(temp, src, length * sizeof(*src));
     translateGeometry(temp, length, translateX, translateY, translateZ);
     translateUV(temp, length, textureNumber);
+    setAO(temp, ao1, ao2, ao3, ao4);
     size_t size = dest.size();
     dest.resize(size + length);
     for (size_t i = 0; i < length; i++) {
@@ -250,12 +267,16 @@ static void copyTranslatedIntoVector(
 }
 
 static bool shouldMeshFace(int adjacentBlock, int thisBlock, bool thisBlockOpaque) {
-//    return  (adjacentBlock == BLOCK_AIR) ||
-//    ((adjacentBlock > BLOCK_AIR) &&
-//     opaque &&
-//     (!(blockInfos[adjacentBlock].opaque)));
     return  (adjacentBlock >= BLOCK_AIR) &&
             (thisBlockOpaque ? !(blockInfos[adjacentBlock].opaque) : (adjacentBlock != thisBlock));
+}
+
+static inline bool isOpaque(int block) {
+    return (block >= BLOCK_AIR) && blockInfos[block].opaque;
+}
+
+static inline float vertexAO(bool side1, bool side2, bool corner) {
+    return (float) ((side1 && side2) ? 0 : (3 - (side1 + side2 + corner))) / 3.0f;
 }
 
 void Renderer::mesh(
@@ -271,6 +292,10 @@ void Renderer::mesh(
     float tmpGeometry[FACE_GEOMETRY_LENGTH];
     blocktype block;
     blockinfo binfo;
+    blocktype kernel[3][3][3];
+    blocktype temp;
+    bool aoKernel[3][3][3];
+    int kernelX, kernelY, kernelZ;
     printf("Meshing chunk (%d, %d)\n", chunkX, chunkZ);
     int chunkHeight = (int) ceil((float) blocks.size() / (CHUNK_SIZE * CHUNK_SIZE));
     for (internalY = 0; internalY < chunkHeight; internalY++) {
@@ -290,29 +315,48 @@ void Renderer::mesh(
                     std::vector<float> &targetVector =
                     binfo.opaque ? opaqueMeshData : transparentMeshData;
                     
-                    if (shouldMeshFace(world->getBlock(x - 1, y, z), block, binfo.opaque)) {
-                        copyTranslatedIntoVector(targetVector, tmpGeometry,
-                                nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nx);
+                    for (kernelX = 0; kernelX < 3; kernelX++) {
+                        for (kernelY = 0; kernelY < 3; kernelY++) {
+                            for (kernelZ = 0; kernelZ < 3; kernelZ++) {
+                                temp = world->getBlock(x + kernelX - 1, y + kernelY - 1, z + kernelZ - 1);
+                                //TODO blocks really only need to be stored in one or the other,
+                                //since face-adjacent blocks are used by meshing and
+                                //edge and corner blocks are used by ambient occlusion
+                                kernel[kernelX][kernelY][kernelZ] = temp;
+                                aoKernel[kernelX][kernelY][kernelZ] = isOpaque(temp);
+                            }
+                        }
                     }
-                    if (shouldMeshFace(world->getBlock(x + 1, y, z), block, binfo.opaque)) {
+                    
+                    if (shouldMeshFace(kernel[0][1][1], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
-                                pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_px);
+                                nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nx,
+                                0.0f, 0.0f, 0.0f, 0.0f);
                     }
-                    if (shouldMeshFace(world->getBlock(x, y - 1, z), block, binfo.opaque)) {
+                    if (shouldMeshFace(kernel[2][1][1], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
-                                nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_ny);
+                                pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_px,
+                                0.0f, 0.0f, 0.0f, 0.0f);
                     }
-                    if (shouldMeshFace(world->getBlock(x, y + 1, z), block, binfo.opaque)) {
+                    if (shouldMeshFace(kernel[1][0][1], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
-                                pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_py);
+                                nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_ny,
+                                0.0f, 0.0f, 0.0f, 0.0f);
                     }
-                    if (shouldMeshFace(world->getBlock(x, y, z - 1), block, binfo.opaque)) {
+                    if (shouldMeshFace(kernel[1][2][1], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
-                                nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nz);
+                                pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_py,
+                                0.0f, 0.0f, 0.0f, 0.0f);
                     }
-                    if (shouldMeshFace(world->getBlock(x, y, z + 1), block, binfo.opaque)) {
+                    if (shouldMeshFace(kernel[1][1][0], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
-                                pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_pz);
+                                nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nz,
+                                0.0f, 0.0f, 0.0f, 0.0f);
+                    }
+                    if (shouldMeshFace(kernel[1][1][2], block, binfo.opaque)) {
+                        copyTranslatedIntoVector(targetVector, tmpGeometry,
+                                pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_pz,
+                                0.0f, 0.0f, 0.0f, 0.0f);
                     }
                 }
             }
