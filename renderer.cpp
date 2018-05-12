@@ -268,7 +268,8 @@ static void copyTranslatedIntoVector(
 
 static bool shouldMeshFace(int adjacentBlock, int thisBlock, bool thisBlockOpaque) {
     return  (adjacentBlock >= BLOCK_AIR) &&
-            (thisBlockOpaque ? !(blockInfos[adjacentBlock].opaque) : (adjacentBlock != thisBlock));
+            !(blockInfos[adjacentBlock].opaque) &&
+            (thisBlockOpaque || (adjacentBlock != thisBlock));
 }
 
 static inline bool isOpaque(int block) {
