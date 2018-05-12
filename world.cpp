@@ -23,12 +23,14 @@ void World::genesis(int chunkX, int chunkZ) {
     int maxHeight = WATER_LEVEL; // start at water level
     int heightmap[CHUNK_SIZE][CHUNK_SIZE];
     int height;
+    srand((unsigned int) time(NULL));
+    int randX = rand(), randZ = rand();
     for (int z = 0; z < CHUNK_SIZE; z++) {
         for (int x = 0; x < CHUNK_SIZE; x++) {
             heightmap[z][x] = height = WATER_LEVEL + (int) (noiseModule.GetValue(
-                    (chunkX * CHUNK_SIZE + x) * 0.01 + 0.5,
+                    (chunkX * CHUNK_SIZE + randX + x) * 0.01 + 0.5,
                     0.5,
-                    (chunkZ * CHUNK_SIZE + z) * 0.01 + 0.5)
+                    (chunkZ * CHUNK_SIZE + randZ + z) * 0.01 + 0.5)
                     * 28.0);
             if (height > maxHeight) {
                 maxHeight = height;
