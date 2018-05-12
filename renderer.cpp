@@ -18,6 +18,7 @@
 #include "renderer.h"
 #include "textureutils.h"
 
+// cube face geometries
 static const float nxGeometry[] = {
     0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
     0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,   0.0f,
@@ -67,6 +68,7 @@ static const float pzGeometry[] = {
     0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   0.0f,
 };
 
+// cube face geometries (with flipped diagonal)
 static const float nxGeometryFlipped[] = {
     0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
     0.0f, 0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,   0.0f,
@@ -152,7 +154,12 @@ static const float selectionGeometry[] = {
 };
 
 static const unsigned char selectionIndices[] = {
-    0, 1, 1, 2, 2, 3, 3, 0, 0, 4, 1, 5, 2, 6, 3, 7, 4, 5, 5, 6, 6, 7, 7, 4
+    3, 0, 7, 4, 7, 0,
+    1, 2, 5, 6, 5, 2,
+    6, 7, 5, 4, 5, 7,
+    1, 0, 2, 3, 2, 0,
+    0, 1, 4, 5, 4, 1,
+    2, 3, 6, 7, 6, 3,
 };
 
 #define SELECTION_GEOMETRY_POSITION 0
@@ -613,18 +620,18 @@ void Renderer::render() {
         glBindVertexArray(chunkMesh.transparentMesh.vertexArrayID);
         glDrawArrays(GL_TRIANGLES, 0, chunkMesh.transparentMesh.vertexCount);
     }
-    glDepthMask(GL_TRUE);
     
     if (drawSelectionCube) {
         simpleShaderProgram.useProgram();
         glUniformMatrix4fv(simpleShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE,
                 &(mvpMatrix * selectionModelMatrix)[0][0]);
-        glUniform3f(simpleShaderProgram.uniforms["u_Color"], 0.0f, 0.0f, 0.0f);
+        glUniform4f(simpleShaderProgram.uniforms["u_Color"], 1.0f, 1.0f, 1.0f, 0.25f);
         
         glBindVertexArray(selectionVertexArray);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, selectionIndexBuffer);
-        glDrawElements(GL_LINES, 24, GL_UNSIGNED_BYTE, (void *) 0);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void *) 0);
     }
+    glDepthMask(GL_TRUE);
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, width, height);
