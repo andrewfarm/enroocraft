@@ -67,6 +67,55 @@ static const float pzGeometry[] = {
     0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   0.0f,
 };
 
+static const float nxGeometryFlipped[] = {
+    0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,   0.0f,
+};
+static const float pxGeometryFlipped[] = {
+    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    1.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    1.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,   0.0f,
+};
+static const float nyGeometryFlipped[] = {
+    1.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, -1.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 0.0f,   0.0f,
+};
+static const float pyGeometryFlipped[] = {
+    1.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f,   0.0f,
+};
+static const float nzGeometryFlipped[] = {
+    0.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 0.0f,   0.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f,   0.0f,
+    1.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 1.0f,   0.0f,
+    0.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 0.0f,   0.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f,   0.0f,
+};
+static const float pzGeometryFlipped[] = {
+    1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   0.0f,
+};
+
 #define FACE_GEOMETRY_STRIDE 9
 #define FACE_GEOMETRY_LENGTH (FACE_GEOMETRY_STRIDE * 6)
 
@@ -245,20 +294,38 @@ static void setAO(float *geometry, float ao1, float ao2, float ao3, float ao4) {
     geometry[FACE_GEOMETRY_STRIDE * 3 + FACE_GEOMETRY_AO] = ao4;
 }
 
+static void setAOFlipped(float *geometry, float ao1, float ao2, float ao3, float ao4) {
+    geometry[FACE_GEOMETRY_STRIDE * 5 + FACE_GEOMETRY_AO] = ao1;
+    
+    geometry[FACE_GEOMETRY_AO] = ao2;
+    geometry[FACE_GEOMETRY_STRIDE * 4 + FACE_GEOMETRY_AO] = ao2;
+    
+    geometry[FACE_GEOMETRY_STRIDE * 2 + FACE_GEOMETRY_AO] = ao3;
+    
+    geometry[FACE_GEOMETRY_STRIDE * 1 + FACE_GEOMETRY_AO] = ao4;
+    geometry[FACE_GEOMETRY_STRIDE * 3 + FACE_GEOMETRY_AO] = ao4;
+}
+
 static void copyTranslatedIntoVector(
         std::vector<float> &dest,
         float *temp,
-        const float *src,
+        const float *geometry,
+        const float *geometryFlipped,
         size_t length,
         float translateX,
         float translateY,
         float translateZ,
         int textureNumber,
         float ao1, float ao2, float ao3, float ao4) {
-    memcpy(temp, src, length * sizeof(*src));
+    if (ao2 + ao4 > ao1 + ao3) {
+        memcpy(temp, geometryFlipped, length * sizeof(*geometryFlipped));
+        setAOFlipped(temp, ao1, ao2, ao3, ao4);
+    } else {
+        memcpy(temp, geometry, length * sizeof(*geometry));
+        setAO(temp, ao1, ao2, ao3, ao4);
+    }
     translateGeometry(temp, length, translateX, translateY, translateZ);
     translateUV(temp, length, textureNumber);
-    setAO(temp, ao1, ao2, ao3, ao4);
     size_t size = dest.size();
     dest.resize(size + length);
     for (size_t i = 0; i < length; i++) {
@@ -332,7 +399,7 @@ void Renderer::mesh(
                     // negative x
                     if (shouldMeshFace(kernel[0][1][1], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
-                                nxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nx,
+                                nxGeometry, nxGeometryFlipped, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nx,
                                 vertexAO(aoKernel[0][1][0], aoKernel[0][2][1], aoKernel[0][2][0]),
                                 vertexAO(aoKernel[0][2][1], aoKernel[0][1][2], aoKernel[0][2][2]),
                                 vertexAO(aoKernel[0][1][2], aoKernel[0][0][1], aoKernel[0][0][2]),
@@ -341,7 +408,7 @@ void Renderer::mesh(
                     // positive x
                     if (shouldMeshFace(kernel[2][1][1], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
-                                pxGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_px,
+                                pxGeometry, pxGeometryFlipped, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_px,
                                 vertexAO(aoKernel[2][1][2], aoKernel[2][2][1], aoKernel[2][2][2]),
                                 vertexAO(aoKernel[2][2][1], aoKernel[2][1][0], aoKernel[2][2][0]),
                                 vertexAO(aoKernel[2][1][0], aoKernel[2][0][1], aoKernel[2][0][0]),
@@ -350,7 +417,7 @@ void Renderer::mesh(
                     // negative y
                     if (shouldMeshFace(kernel[1][0][1], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
-                                nyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_ny,
+                                nyGeometry, nyGeometryFlipped, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_ny,
                                 vertexAO(aoKernel[0][0][1], aoKernel[1][0][2], aoKernel[0][0][2]),
                                 vertexAO(aoKernel[1][0][2], aoKernel[2][0][1], aoKernel[2][0][2]),
                                 vertexAO(aoKernel[2][0][1], aoKernel[1][0][0], aoKernel[2][0][0]),
@@ -359,7 +426,7 @@ void Renderer::mesh(
                     // positive y
                     if (shouldMeshFace(kernel[1][2][1], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
-                                pyGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_py,
+                                pyGeometry, pyGeometryFlipped, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_py,
                                 vertexAO(aoKernel[0][2][1], aoKernel[1][2][0], aoKernel[0][2][0]),
                                 vertexAO(aoKernel[1][2][0], aoKernel[2][2][1], aoKernel[2][2][0]),
                                 vertexAO(aoKernel[2][2][1], aoKernel[1][2][2], aoKernel[2][2][2]),
@@ -368,7 +435,7 @@ void Renderer::mesh(
                     // negative z
                     if (shouldMeshFace(kernel[1][1][0], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
-                                nzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nz,
+                                nzGeometry, nzGeometryFlipped, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_nz,
                                 vertexAO(aoKernel[2][1][0], aoKernel[1][2][0], aoKernel[2][2][0]),
                                 vertexAO(aoKernel[1][2][0], aoKernel[0][1][0], aoKernel[0][2][0]),
                                 vertexAO(aoKernel[0][1][0], aoKernel[1][0][0], aoKernel[0][0][0]),
@@ -377,7 +444,7 @@ void Renderer::mesh(
                     // positive z
                     if (shouldMeshFace(kernel[1][1][2], block, binfo.opaque)) {
                         copyTranslatedIntoVector(targetVector, tmpGeometry,
-                                pzGeometry, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_pz,
+                                pzGeometry, pzGeometryFlipped, FACE_GEOMETRY_LENGTH, x, y, z, binfo.tex_pz,
                                 vertexAO(aoKernel[0][1][2], aoKernel[1][2][2], aoKernel[0][2][2]),
                                 vertexAO(aoKernel[1][2][2], aoKernel[2][1][2], aoKernel[2][2][2]),
                                 vertexAO(aoKernel[2][1][2], aoKernel[1][0][2], aoKernel[2][0][2]),
