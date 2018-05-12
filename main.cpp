@@ -70,10 +70,8 @@ int main(int argc, const char * argv[]) {
         
         controls.update(deltaTime);
         
-        if (!controls.arePaused()) {
-            renderer.render();
-            glfwSwapBuffers(window);
-        }
+        renderer.render();
+        glfwSwapBuffers(window);
         
         glfwPollEvents();
     } while (!glfwWindowShouldClose(window));

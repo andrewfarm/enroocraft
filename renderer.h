@@ -59,6 +59,7 @@ class Renderer {
     
     GLuint texture;
     
+    bool framebufferCreated;
     GLuint framebuffer;
     GLuint renderedColorTexture;
     GLuint renderedDepthTexture;

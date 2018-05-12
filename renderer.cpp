@@ -158,7 +158,9 @@ static const unsigned char selectionIndices[] = {
 #define SELECTION_GEOMETRY_POSITION 0
 #define SELECTION_GEOMETRY_VERTEX_COMPONENTS 3
 
-Renderer::Renderer() {
+Renderer::Renderer() :
+framebufferCreated(false)
+{
     camPos = glm::vec3(0.5f, 70.0f, 0.5f);
     camPitch = 0;
     camYaw = 0;
@@ -232,17 +234,19 @@ void Renderer::setSize(float width, float height) {
     updateMvpMatrix();
     
     printf("Creating textured framebuffer\n");
-    glGenFramebuffers(1, &framebuffer);
+    if (!framebufferCreated) {
+        glGenFramebuffers(1, &framebuffer);
+        glGenTextures(1, &renderedColorTexture);
+        glGenTextures(1, &renderedDepthTexture);
+    }
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     
-    glGenTextures(1, &renderedColorTexture);
     glBindTexture(GL_TEXTURE_2D, renderedColorTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedColorTexture, 0);
     
-    glGenTextures(1, &renderedDepthTexture);
     glBindTexture(GL_TEXTURE_2D, renderedDepthTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -251,6 +255,8 @@ void Renderer::setSize(float width, float height) {
     
     GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, drawBuffers);
+    
+    framebufferCreated = true;
     
     // Always check that our framebuffer is ok
     // are you ok, framebuffer?

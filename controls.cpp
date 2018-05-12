@@ -48,7 +48,13 @@ bool Controls::arePaused() {
 }
 
 void Controls::update(double deltaTime) {
-    glfwGetWindowSize(window, &windowWidth, &windowHeight);
+    int newWindowWidth, newWindowHeight;
+    glfwGetWindowSize(window, &newWindowWidth, &newWindowHeight);
+    if ((newWindowWidth != windowWidth) || (newWindowHeight != windowHeight)) {
+        windowWidth = newWindowWidth;
+        windowHeight = newWindowHeight;
+        renderer->setSize(newWindowWidth, newWindowHeight);
+    }
     
     int escapeStatus = glfwGetKey(window, GLFW_KEY_ESCAPE);
     if (!escapeKeyDown && (escapeStatus == GLFW_PRESS)) {
