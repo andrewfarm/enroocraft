@@ -34,12 +34,38 @@ window(window),
 renderer(renderer),
 world(world),
 canBreakBlock(true),
-canPlaceBlock(true)
+canPlaceBlock(true),
+escapeKeyDown(false),
+paused(false)
 {
+    glfwGetWindowSize(window, &windowWidth, &windowHeight);
     glfwGetCursorPos(window, &prevMouseX, &prevMouseY);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+bool Controls::arePaused() {
+    return paused;
 }
 
 void Controls::update(double deltaTime) {
+    glfwGetWindowSize(window, &windowWidth, &windowHeight);
+    
+    int escapeStatus = glfwGetKey(window, GLFW_KEY_ESCAPE);
+    if (!escapeKeyDown && (escapeStatus == GLFW_PRESS)) {
+        escapeKeyDown = true;
+        paused = !paused;
+        glfwSetInputMode(window, GLFW_CURSOR, paused ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+        prevMouseX = windowWidth / 2;
+        prevMouseY = windowHeight / 2;
+        glfwSetCursorPos(window, prevMouseX, prevMouseY);
+    } else if (escapeKeyDown && (escapeStatus == GLFW_RELEASE)) {
+        escapeKeyDown = false;
+    }
+    
+    if (paused) {
+        return;
+    }
+    
     double mouseX, mouseY;
     glfwGetCursorPos(window, &mouseX, &mouseY);
     

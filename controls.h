@@ -18,11 +18,16 @@ class Controls {
     GLFWwindow *window;
     Renderer *renderer;
     World *world;
+    int windowWidth, windowHeight;
     double prevMouseX, prevMouseY;
     bool canBreakBlock, canPlaceBlock;
     
+    bool escapeKeyDown;
+    bool paused;
+    
 public:
     Controls(GLFWwindow *window, Renderer *renderer, World *world);
+    bool arePaused();
     void update(double deltaTime);
 };
 

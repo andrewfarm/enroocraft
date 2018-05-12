@@ -39,7 +39,6 @@ int main(int argc, const char * argv[]) {
         return EXIT_FAILURE;
     }
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwMakeContextCurrent(window);
     
     glewExperimental=true; // Needed in core profile
@@ -71,12 +70,13 @@ int main(int argc, const char * argv[]) {
         
         controls.update(deltaTime);
         
-        renderer.render();
+        if (!controls.arePaused()) {
+            renderer.render();
+            glfwSwapBuffers(window);
+        }
         
-        glfwSwapBuffers(window);
         glfwPollEvents();
-    } while ((glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS) &&
-            (!glfwWindowShouldClose(window)));
+    } while (!glfwWindowShouldClose(window));
     
     return EXIT_SUCCESS;
 }
