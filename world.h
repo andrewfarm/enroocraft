@@ -14,6 +14,8 @@
 
 #define CHUNK_SIZE 16
 
+#define WATER_LEVEL 64
+
 typedef int16_t blocktype;
 
 const blocktype BLOCK_NOT_LOADED = -1;

@@ -710,10 +710,15 @@ void Renderer::render() {
     screenShaderProgram.useProgram();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, renderedColorTexture);
-    glUniform1i(blockShaderProgram.uniforms["u_ColorTexture"], 0);
+    glUniform1i(screenShaderProgram.uniforms["u_ColorTexture"], 0);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, renderedDepthTexture);
-    glUniform1i(blockShaderProgram.uniforms["u_DepthTexture"], 1);
+    glUniform1i(screenShaderProgram.uniforms["u_DepthTexture"], 1);
+    if (camPos.y < WATER_LEVEL) {
+        glUniform4f(screenShaderProgram.uniforms["u_ColorOverlay"], 0.0f, 0.0f, 1.0f, 0.25f);
+    } else {
+        glUniform4f(screenShaderProgram.uniforms["u_ColorOverlay"], 0.0f, 0.0f, 0.0f, 0.0f);
+    }
     
     glBindVertexArray(screenVertexArray);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

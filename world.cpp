@@ -14,7 +14,6 @@
 
 #include "world.h"
 
-#define WATER_LEVEL 64
 void World::genesis(int chunkX, int chunkZ) {
     printf("Generating chunk (%d, %d)\n", chunkX, chunkZ);
     std::vector<blocktype> chunkdata;
