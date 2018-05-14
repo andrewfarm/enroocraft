@@ -40,9 +40,14 @@ class Renderer {
     glm::mat4 projectionMatrix;
     glm::mat4 mvpMatrix;
     
+    glm::vec3 lightDirection;
+    glm::mat4 lightMvpMatrix;
+    glm::mat4 lightBiasMvpMatrix;
+    
     bool drawSelectionCube;
     glm::mat4 selectionModelMatrix;
     
+    ShaderProgram shadowMapShaderProgram;
     ShaderProgram blockShaderProgram;
     ShaderProgram screenShaderProgram;
     ShaderProgram crosshairShaderProgram;
@@ -59,12 +64,17 @@ class Renderer {
     
     GLuint texture;
     
+    GLuint shadowMapFBO;
+    GLuint shadowMapColorTexture;
+    GLuint shadowMapDepthTexture;
+    
     bool framebufferCreated;
     GLuint framebuffer;
     GLuint renderedColorTexture;
     GLuint renderedDepthTexture;
     
     void updateMvpMatrix();
+    void updateLightMvpMatrix();
     
     void mesh(
             std::vector<float> &opaqueMeshData,

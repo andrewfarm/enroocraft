@@ -165,6 +165,14 @@ static const unsigned char selectionIndices[] = {
 #define SELECTION_GEOMETRY_POSITION 0
 #define SELECTION_GEOMETRY_VERTEX_COMPONENTS 3
 
+#define SHADOWMAP_SIZE 4096
+
+const glm::mat4 lightBiasMatrix(
+        0.5f, 0.0f, 0.0f, 0.0f,
+        0.0f, 0.5f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.5f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f);
+
 Renderer::Renderer() :
 framebufferCreated(false)
 {
@@ -173,7 +181,14 @@ framebufferCreated(false)
     camYaw = 0;
     updateViewMatrix();
     
+    lightDirection = glm::vec3(0.8f, 1.0f, 0.2f);
+    updateLightMvpMatrix();
+    
     drawSelectionCube = false;
+    
+    shadowMapShaderProgram.load(
+            "shaders/shadowmapvertexshader.glsl",
+            "shaders/shadowmapfragmentshader.glsl");
     
     blockShaderProgram.load(
             "shaders/blockvertexshader.glsl",
@@ -229,6 +244,38 @@ framebufferCreated(false)
     glGenBuffers(1, &selectionIndexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, selectionIndexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(selectionIndices), selectionIndices, GL_STATIC_DRAW);
+    
+    // create shadowmap framebuffer
+    
+    printf("Creating shadowmap framebuffer\n");
+    glGenFramebuffers(1, &shadowMapFBO);
+    glGenTextures(1, &shadowMapColorTexture);
+    glGenTextures(1, &shadowMapDepthTexture);
+    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+    
+    glBindTexture(GL_TEXTURE_2D, shadowMapColorTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SHADOWMAP_SIZE, SHADOWMAP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, shadowMapColorTexture, 0);
+    
+    glBindTexture(GL_TEXTURE_2D, shadowMapDepthTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOWMAP_SIZE, SHADOWMAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  shadowMapDepthTexture, 0);
+    
+    GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, drawBuffers);
+    
+    // Always check that our framebuffer is ok
+    // are you ok, framebuffer?
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if(status == GL_FRAMEBUFFER_COMPLETE) {
+        printf("Framebuffer creation successful\n");
+    } else {
+        printf("Error creating framebuffer (status: %d)\n", status);
+    }
 }
 
 void Renderer::setSize(float width, float height) {
@@ -240,7 +287,7 @@ void Renderer::setSize(float width, float height) {
     projectionMatrix = glm::perspective(glm::radians(60.0f), width / height, 0.1f, 1000.0f);
     updateMvpMatrix();
     
-    printf("Creating textured framebuffer\n");
+    printf("Creating screen framebuffer\n");
     if (!framebufferCreated) {
         glGenFramebuffers(1, &framebuffer);
         glGenTextures(1, &renderedColorTexture);
@@ -591,22 +638,41 @@ void Renderer::setSelectedBlock(int x, int y, int z) {
 }
 
 void Renderer::render() {
+    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+    glViewport(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
+    
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glEnable(GL_CULL_FACE);
+    
+    shadowMapShaderProgram.useProgram();
+    glUniformMatrix4fv(shadowMapShaderProgram.uniforms["u_LightMvpMatrix"], 1, GL_FALSE, &lightMvpMatrix[0][0]);
+    
+    for (auto &chunkMeshEntry : chunkMeshes) {
+        chunkMesh &chunkMesh = chunkMeshEntry.second;
+        glBindVertexArray(chunkMesh.opaqueMesh.vertexArrayID);
+        glDrawArrays(GL_TRIANGLES, 0, chunkMesh.opaqueMesh.vertexCount);
+    }
+    
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glViewport(0, 0, width, height);
     
     glClearColor(0.5f, 0.8f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     blockShaderProgram.useProgram();
     glUniformMatrix4fv(blockShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE, &mvpMatrix[0][0]);
+    glUniformMatrix4fv(blockShaderProgram.uniforms["u_LightBiasMvpMatrix"], 1, GL_FALSE, &lightBiasMvpMatrix[0][0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glUniform1i(blockShaderProgram.uniforms["u_Texture"], 0);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, shadowMapDepthTexture);
+    glUniform1i(blockShaderProgram.uniforms["u_ShadowMap"], 1);
+    glUniform3fv(blockShaderProgram.uniforms["u_LightDirection"], 1, &lightDirection[0]);
     
     for (auto &chunkMeshEntry : chunkMeshes) {
         chunkMesh &chunkMesh = chunkMeshEntry.second;
@@ -672,4 +738,9 @@ void Renderer::updateViewMatrix() {
 
 void Renderer::updateMvpMatrix() {
     mvpMatrix = projectionMatrix * viewMatrix;
+}
+
+void Renderer::updateLightMvpMatrix() {
+    lightMvpMatrix = glm::ortho(-64.0f, 64.0f, -64.0f, 64.0f, -512.0f, 256.0f) * glm::lookAt(lightDirection, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    lightBiasMvpMatrix = lightBiasMatrix * lightMvpMatrix;
 }
