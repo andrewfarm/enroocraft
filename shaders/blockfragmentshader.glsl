@@ -17,7 +17,7 @@ void main() {
     vec4 texColor = texture(u_Texture, v_TexUV);
     
     float ambientLight = 0.5 * v_AmbientLight + 0.2;
-    bool inShadow = (texture(u_ShadowMap, v_PosLightSpace.xy).r < v_PosLightSpace.z - 0.0002);
+    bool inShadow = (texture(u_ShadowMap, v_PosLightSpace.xy).r < v_PosLightSpace.z - 0.0003);
     float directionalLight = inShadow ? 0.0 : (0.4 * max(dot(normalize(v_Normal), normalize(u_LightDirection)), 0.0f));
     float totalLight = clamp(ambientLight + directionalLight, 0.0f, 1.0f);
     

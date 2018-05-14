@@ -174,17 +174,16 @@ const glm::mat4 lightBiasMatrix(
         0.5f, 0.5f, 0.5f, 1.0f);
 
 Renderer::Renderer() :
-framebufferCreated(false)
+framebufferCreated(false),
+camPos(0.5f, 70.0f, 0.5f),
+camPitch(0),
+camYaw(0),
+lightDirection(0.8f, 1.0f, 0.2f),
+drawSelectionCube(false)
 {
-    camPos = glm::vec3(0.5f, 70.0f, 0.5f);
-    camPitch = 0;
-    camYaw = 0;
     updateViewMatrix();
     
-    lightDirection = glm::vec3(0.8f, 1.0f, 0.2f);
     updateLightMvpMatrix();
-    
-    drawSelectionCube = false;
     
     shadowMapShaderProgram.load(
             "shaders/shadowmapvertexshader.glsl",
@@ -394,8 +393,7 @@ static void copyTranslatedIntoVector(
 }
 
 static bool shouldMeshFace(int adjacentBlock, int thisBlock, bool thisBlockOpaque) {
-    return  (adjacentBlock >= BLOCK_AIR) &&
-            !(blockInfos[adjacentBlock].opaque) &&
+    return  !(blockInfos[adjacentBlock].opaque) &&
             (thisBlockOpaque || (adjacentBlock != thisBlock));
 }
 
@@ -638,6 +636,10 @@ void Renderer::setSelectedBlock(int x, int y, int z) {
 }
 
 void Renderer::render() {
+    glm::mat3 rotateLight = glm::rotate(0.0005f, glm::vec3(0.0f, 0.0f, -1.0f));
+    lightDirection = rotateLight * lightDirection;
+    updateLightMvpMatrix();
+    
     glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
     glViewport(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
     
@@ -741,6 +743,6 @@ void Renderer::updateMvpMatrix() {
 }
 
 void Renderer::updateLightMvpMatrix() {
-    lightMvpMatrix = glm::ortho(-64.0f, 64.0f, -64.0f, 64.0f, -512.0f, 256.0f) * glm::lookAt(lightDirection, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    lightMvpMatrix = glm::ortho(-128.0f, 128.0f, -128.0f, 128.0f, -512.0f, 256.0f) * glm::lookAt(lightDirection, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     lightBiasMvpMatrix = lightBiasMatrix * lightMvpMatrix;
 }
