@@ -14,7 +14,7 @@
 #include "controls.h"
 
 #define LOOK_SPEED 0.1f
-#define MOVE_SPEED 10.0f
+#define MOVE_ACC 200.0f
 
 #define MAX_SELECT_DISTANCE 5.0f
 
@@ -119,16 +119,10 @@ void Controls::update(double deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_SPACE)  == GLFW_PRESS) {
         directionY += 1;
     }
-    glm::vec3 move = MOVE_SPEED * (float) deltaTime * glm::vec3(directionX, directionY, directionZ);
+    glm::vec3 move = MOVE_ACC * (float) deltaTime * glm::vec3(directionX, directionY, directionZ);
     float camYaw = player->getLookYaw();
     move = glm::rotate(move, camYaw, glm::vec3(0.0f, 1.0f, 0.0f));
-    player->move(move);
-//    float sinYaw = sinf(camYaw);
-//    float cosYaw = cosf(camYaw);
-//    player->setCamPos(
-//            renderer->getCamX() + (moveX * cosYaw) + (moveZ * sinYaw),
-//            renderer->getCamY() + moveY,
-//            renderer->getCamZ() + (moveX * -sinYaw) + (moveZ * cosYaw));
+    player->acc(move);
     
     renderer->setCamPos(player->getPos());
     renderer->setCamYaw(player->getLookYaw());

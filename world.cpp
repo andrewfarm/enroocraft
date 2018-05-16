@@ -10,11 +10,15 @@
 #include <math.h>
 
 #include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
 #include <noise/noise.h>
 
 #include "world.h"
 
 const float TIME_PASSAGE_RATE = 1.0f / 60.0f;
+
+const float FRICTION = 100.0f;
+const float MAX_SPEED = 30.0f;
 
 World::World() :
 timeOfDay(0)
@@ -119,4 +123,17 @@ float World::getTimeOfDay() {
 
 void World::update(float deltaTime) {
     setTimeOfDay(timeOfDay + (TIME_PASSAGE_RATE * deltaTime));
+    float frictionAmount = FRICTION * deltaTime;
+    for (Entity &e : entities) {
+        if (glm::length2(e.getVel()) > MAX_SPEED * MAX_SPEED) {
+            e.setVel(glm::normalize(e.getVel()) * MAX_SPEED);
+        }
+        if (glm::length2(e.getVel()) > frictionAmount) {
+            glm::vec3 friction = -glm::normalize(e.getVel()) * frictionAmount;
+            e.acc(friction);
+        } else {
+            e.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
+        }
+        e.move(e.getVel() * deltaTime);
+    }
 }
