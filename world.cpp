@@ -22,6 +22,50 @@ const float TREE_FREQ = 0.02f;
 const float DRAG_COEF = 0.03f;
 const float MAX_SPEED = 20.0f;
 
+const int TREE_WIDTH = 5;
+const int TREE_DEPTH = 5;
+const int TREE_HEIGHT = 6;
+const int TREE_CENTER_X = 2;
+const int TREE_CENTER_Z = 2;
+const int TREE_CENTER_Y = -1;
+const blocktype STRUCTURE_TREE[] = {
+    -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1,
+    -1, -1, BLOCK_WOOD, -1, -1,
+    -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1,
+    
+    -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1,
+    -1, -1, BLOCK_WOOD, -1, -1,
+    -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1,
+    
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_WOOD,   BLOCK_LEAVES, BLOCK_LEAVES,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
+    
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_WOOD,   BLOCK_LEAVES, BLOCK_LEAVES,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
+    
+    -1, -1, -1, -1, -1,
+    -1, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, -1,
+    -1, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, -1,
+    -1, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, -1,
+    -1, -1, -1, -1, -1,
+    
+    -1, -1, -1, -1, -1,
+    -1, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, -1,
+    -1, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, -1,
+    -1, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, -1,
+    -1, -1, -1, -1, -1,
+};
+
 World::World() :
 timeOfDay(0)
 {}
@@ -77,6 +121,7 @@ void World::genesis(int chunkX, int chunkZ) {
 void World::plant() {
     blocktype block;
     int x, y, z;
+    int treeStartX, treeStartY, treeStartZ;
     for (const auto &chunkEntry : chunks) {
         for (int internalY = 0; internalY < ceil((float) chunkEntry.second.size() / (CHUNK_SIZE * CHUNK_SIZE)); internalY++) {
             for (int internalX = 0; internalX < CHUNK_SIZE; internalX++) {
@@ -86,7 +131,20 @@ void World::plant() {
                     z = chunkEntry.first.second * CHUNK_SIZE + internalZ;
                     block = getBlock(x, y, z);
                     if ((block == BLOCK_GRASS) && ((float) rand() / RAND_MAX < TREE_FREQ)) {
-                        setBlock(x, y + 1, z, BLOCK_LEAVES);
+                        treeStartX = x - TREE_CENTER_X;
+                        treeStartY = y - TREE_CENTER_Y;
+                        treeStartZ = z - TREE_CENTER_Z;
+                        for (int treeX = 0; treeX < TREE_WIDTH; treeX++) {
+                            for (int treeY = 0; treeY < TREE_HEIGHT; treeY++) {
+                                for (int treeZ = 0; treeZ < TREE_DEPTH; treeZ++) {
+                                    setBlock(
+                                            treeStartX + treeX,
+                                            treeStartY + treeY,
+                                            treeStartZ + treeZ,
+                                            STRUCTURE_TREE[(treeY * TREE_WIDTH * TREE_DEPTH) + (treeX * TREE_DEPTH) + treeZ]);
+                                }
+                            }
+                        }
                     }
                 }
             }
