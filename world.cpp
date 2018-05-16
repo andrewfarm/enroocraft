@@ -14,6 +14,12 @@
 
 #include "world.h"
 
+const float TIME_PASSAGE_RATE = 1.0f / 60.0f;
+
+World::World() :
+timeOfDay(0)
+{}
+
 void World::genesis(int chunkX, int chunkZ) {
     printf("Generating chunk (%d, %d)\n", chunkX, chunkZ);
     std::vector<blocktype> chunkdata;
@@ -101,4 +107,16 @@ std::map<std::pair<int, int>, std::vector<blocktype>> *World::getChunks() {
 
 std::vector<Entity> *World::getEntities() {
     return &entities;
+}
+
+void World::setTimeOfDay(float time) {
+    timeOfDay = fmod(time, 1.0);
+}
+
+float World::getTimeOfDay() {
+    return timeOfDay;
+}
+
+void World::update(float deltaTime) {
+    setTimeOfDay(timeOfDay + (TIME_PASSAGE_RATE * deltaTime));
 }

@@ -175,7 +175,6 @@ const glm::mat4 lightBiasMatrix(
 
 Renderer::Renderer() :
 framebufferCreated(false),
-lightDirection(0.8f, 1.0f, 0.2f),
 drawSelectionCube(false)
 {
     updateViewMatrix();
@@ -634,8 +633,8 @@ void Renderer::setSelectedBlock(int x, int y, int z) {
 }
 
 void Renderer::render() {
-    glm::mat3 rotateLight = glm::rotate(0.0005f, glm::vec3(0.0f, 0.0f, -1.0f));
-    lightDirection = rotateLight * lightDirection;
+    glm::mat3 rotateLight = glm::rotate(world->getTimeOfDay() * 2 * (float) M_PI, glm::vec3(0.0f, 0.0f, 1.0f));
+    lightDirection = rotateLight * glm::vec3(1.0f, 0.0f, -0.2f);
     updateLightMvpMatrix();
     
     glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);

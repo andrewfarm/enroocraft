@@ -59,13 +59,18 @@ static inline bool isSolid(int block) {
 class World {
     std::map<std::pair<int, int>, std::vector<blocktype>> chunks;
     std::vector<Entity> entities;
+    float timeOfDay;
     
 public:
+    World();
     void genesis(int chunkX, int chunkZ);
     blocktype getBlock(int x, int y, int z);
     void setBlock(int x, int y, int z, blocktype block);
     std::map<std::pair<int, int>, std::vector<blocktype>> *getChunks();
     std::vector<Entity> *getEntities();
+    void setTimeOfDay(float time);
+    float getTimeOfDay();
+    void update(float deltaTime);
 };
 
 #endif /* world_h */

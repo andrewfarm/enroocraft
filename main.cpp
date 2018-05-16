@@ -75,6 +75,10 @@ int main(int argc, const char * argv[]) {
         
         controls.update(deltaTime);
         
+        if (!controls.arePaused()) {
+            world.update(deltaTime);
+        }
+        
         renderer.render();
         glfwSwapBuffers(window);
         
