@@ -212,7 +212,7 @@ void Controls::update(double deltaTime) {
     int rightMouseButtonStatus = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
     if (rightMouseButtonStatus == GLFW_PRESS) {
         if (canPlaceBlock && isSolid(intersectedBlock)) {
-            world->setBlock(prevX, prevY, prevZ, BLOCK_COBBLE);
+            world->setBlock(prevX, prevY, prevZ, BLOCK_WOOD);
             renderer->updateMesh(prevX, prevY, prevZ);
         }
         canPlaceBlock = false;
