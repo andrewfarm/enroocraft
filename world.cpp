@@ -17,8 +17,8 @@
 
 const float TIME_PASSAGE_RATE = 1.0f / 60.0f;
 
-const float FRICTION = 100.0f;
-const float MAX_SPEED = 30.0f;
+const float DRAG_COEF = 0.03f;
+const float MAX_SPEED = 20.0f;
 
 World::World() :
 timeOfDay(0)
@@ -123,16 +123,22 @@ float World::getTimeOfDay() {
 
 void World::update(float deltaTime) {
     setTimeOfDay(timeOfDay + (TIME_PASSAGE_RATE * deltaTime));
-    float frictionAmount = FRICTION * deltaTime;
+    
+    glm::vec3 vel;
     for (Entity &e : entities) {
-        if (glm::length2(e.getVel()) > MAX_SPEED * MAX_SPEED) {
-            e.setVel(glm::normalize(e.getVel()) * MAX_SPEED);
+        vel = e.getVel();
+        if (glm::length2(vel) > MAX_SPEED * MAX_SPEED) {
+            vel = glm::normalize(e.getVel()) * MAX_SPEED;
+            e.setVel(vel);
         }
-        if (glm::length2(e.getVel()) > frictionAmount) {
-            glm::vec3 friction = -glm::normalize(e.getVel()) * frictionAmount;
-            e.acc(friction);
-        } else {
-            e.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
+        float v2 = glm::length2(vel);
+        if (v2 > 0) {
+            glm::vec3 drag = -glm::normalize(vel) * glm::length2(vel) * DRAG_COEF;
+            if (v2 > glm::length2(drag)) {
+                e.acc(drag);
+            } else {
+                e.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
+            }
         }
         e.move(e.getVel() * deltaTime);
     }
