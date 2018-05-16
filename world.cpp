@@ -80,7 +80,7 @@ blocktype World::getBlock(int x, int y, int z) {
     }
     return chunk[index];
 }
-// TODO reduce reuse of code is setBlock and getBlock
+// TODO reduce reuse of code in setBlock and getBlock
 void World::setBlock(int x, int y, int z, blocktype block) {
     const std::pair<int, int> chunkKey(
             floorf((float) x / CHUNK_SIZE), floorf((float) z / CHUNK_SIZE));
@@ -97,4 +97,8 @@ void World::setBlock(int x, int y, int z, blocktype block) {
 
 std::map<std::pair<int, int>, std::vector<blocktype>> *World::getChunks() {
     return &chunks;
+}
+
+std::vector<Entity> *World::getEntities() {
+    return &entities;
 }

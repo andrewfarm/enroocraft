@@ -8,6 +8,9 @@
 
 #include <math.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+
 #include "controls.h"
 
 #define LOOK_SPEED 0.1f
@@ -29,10 +32,11 @@ static inline float fmodNeg(float a, float b) {
     return fmod(fmod(a, b) + b, b);
 }
 
-Controls::Controls(GLFWwindow *window, Renderer *renderer, World *world) :
+Controls::Controls(GLFWwindow *window, Renderer *renderer, World *world, Player *player) :
 window(window),
 renderer(renderer),
 world(world),
+player(player),
 canBreakBlock(true),
 canPlaceBlock(true),
 escapeKeyDown(false),
@@ -75,20 +79,20 @@ void Controls::update(double deltaTime) {
     double mouseX, mouseY;
     glfwGetCursorPos(window, &mouseX, &mouseY);
     
-    float newYaw = renderer->getCamYaw() +
-    (LOOK_SPEED * deltaTime * float(prevMouseX - mouseX));
+    float newYaw = player->getLookYaw() +
+            (LOOK_SPEED * deltaTime * float(prevMouseX - mouseX));
     newYaw = fmodNeg(newYaw, TWO_PI);
     
-    float newPitch = renderer->getCamPitch() +
-    (LOOK_SPEED * deltaTime * float(prevMouseY - mouseY));
+    float newPitch = player->getLookPitch() +
+            (LOOK_SPEED * deltaTime * float(prevMouseY - mouseY));
     if (newPitch > HALF_PI) {
         newPitch = HALF_PI;
     } else if (newPitch < -HALF_PI) {
         newPitch = -HALF_PI;
     }
     
-    renderer->setCamYaw(newYaw);
-    renderer->setCamPitch(newPitch);
+    player->setLookYaw(newYaw);
+    player->setLookPitch(newPitch);
     prevMouseX = mouseX;
     prevMouseY = mouseY;
     
@@ -115,21 +119,22 @@ void Controls::update(double deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_SPACE)  == GLFW_PRESS) {
         directionY += 1;
     }
-    float moveX = MOVE_SPEED * deltaTime * directionX;
-    float moveY = MOVE_SPEED * deltaTime * directionY;
-    float moveZ = MOVE_SPEED * deltaTime * directionZ;
-    float camYaw = renderer->getCamYaw();
-    float sinYaw = sinf(camYaw);
-    float cosYaw = cosf(camYaw);
-    renderer->setCamPos(
-            renderer->getCamX() + (moveX * cosYaw) + (moveZ * sinYaw),
-            renderer->getCamY() + moveY,
-            renderer->getCamZ() + (moveX * -sinYaw) + (moveZ * cosYaw));
+    glm::vec3 move = MOVE_SPEED * (float) deltaTime * glm::vec3(directionX, directionY, directionZ);
+    float camYaw = player->getLookYaw();
+    move = glm::rotate(move, camYaw, glm::vec3(0.0f, 1.0f, 0.0f));
+    player->move(move);
+//    float sinYaw = sinf(camYaw);
+//    float cosYaw = cosf(camYaw);
+//    player->setCamPos(
+//            renderer->getCamX() + (moveX * cosYaw) + (moveZ * sinYaw),
+//            renderer->getCamY() + moveY,
+//            renderer->getCamZ() + (moveX * -sinYaw) + (moveZ * cosYaw));
+    
+    renderer->setCamPos(player->getPos());
+    renderer->setCamYaw(player->getLookYaw());
+    renderer->setCamPitch(player->getLookPitch());
     
     renderer->updateViewMatrix();
-    
-    renderer->setDrawSelectionCube(true);
-    renderer->setSelectedBlock(0, 63, -5);
     
     // ray cast
     

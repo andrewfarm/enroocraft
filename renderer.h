@@ -94,6 +94,7 @@ public:
     float getCamZ();
     float getCamPitch();
     float getCamYaw();
+    void setCamPos(glm::vec3 pos);
     void setCamPos(float x, float y, float z);
     void setCamPitch(float pitch);
     void setCamYaw(float yaw);

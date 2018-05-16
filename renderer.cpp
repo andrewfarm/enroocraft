@@ -175,9 +175,6 @@ const glm::mat4 lightBiasMatrix(
 
 Renderer::Renderer() :
 framebufferCreated(false),
-camPos(0.5f, 70.0f, 0.5f),
-camPitch(0),
-camYaw(0),
 lightDirection(0.8f, 1.0f, 0.2f),
 drawSelectionCube(false)
 {
@@ -623,6 +620,7 @@ float Renderer::getCamY() { return camPos[1]; }
 float Renderer::getCamZ() { return camPos[2]; }
 float Renderer::getCamPitch() { return camPitch; }
 float Renderer::getCamYaw() { return camYaw; }
+void Renderer::setCamPos(glm::vec3 pos) { camPos = pos; }
 void Renderer::setCamPos(float x, float y, float z) { camPos = glm::vec3(x, y, z); }
 void Renderer::setCamPitch(float pitch) { camPitch = pitch; }
 void Renderer::setCamYaw(float yaw) { camYaw = yaw; }

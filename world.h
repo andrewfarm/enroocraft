@@ -12,6 +12,8 @@
 #include <map>
 #include <vector>
 
+#include "entity.h"
+
 #define CHUNK_SIZE 16
 
 #define WATER_LEVEL 64
@@ -56,12 +58,14 @@ static inline bool isSolid(int block) {
 
 class World {
     std::map<std::pair<int, int>, std::vector<blocktype>> chunks;
+    std::vector<Entity> entities;
     
 public:
     void genesis(int chunkX, int chunkZ);
     blocktype getBlock(int x, int y, int z);
     void setBlock(int x, int y, int z, blocktype block);
     std::map<std::pair<int, int>, std::vector<blocktype>> *getChunks();
+    std::vector<Entity> *getEntities();
 };
 
 #endif /* world_h */

@@ -17,6 +17,7 @@
 #include "renderer.h"
 #include "controls.h"
 #include "world.h"
+#include "entity.h"
 
 int main(int argc, const char * argv[]) {
     if (!glfwInit()) {
@@ -48,6 +49,10 @@ int main(int argc, const char * argv[]) {
     }
     
     World world;
+    Entity temp;
+    world.getEntities()->push_back(temp);
+    Player *player = (Player *) &(*world.getEntities())[0];
+    player->setPos(glm::vec3(0.5f, 70.0f, 0.5f));
     for (int z = -4; z < 4; z++) {
         for (int x = -4; x < 4; x++) {
             world.genesis(x, z);
@@ -58,7 +63,7 @@ int main(int argc, const char * argv[]) {
     renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     renderer.setWorld(&world);
     
-    Controls controls(window, &renderer, &world);
+    Controls controls(window, &renderer, &world, player);
     
     std::chrono::high_resolution_clock::time_point start, end;
     double deltaTime;

@@ -11,6 +11,7 @@
 
 #include "renderer.h"
 #include "world.h"
+#include "player.h"
 
 #include <GLFW/glfw3.h>
 
@@ -18,6 +19,7 @@ class Controls {
     GLFWwindow *window;
     Renderer *renderer;
     World *world;
+    Player *player;
     int windowWidth, windowHeight;
     double prevMouseX, prevMouseY;
     bool canBreakBlock, canPlaceBlock;
@@ -26,7 +28,7 @@ class Controls {
     bool paused;
     
 public:
-    Controls(GLFWwindow *window, Renderer *renderer, World *world);
+    Controls(GLFWwindow *window, Renderer *renderer, World *world, Player *player);
     bool arePaused();
     void update(double deltaTime);
 };
