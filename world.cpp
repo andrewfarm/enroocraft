@@ -17,6 +17,8 @@
 
 const float TIME_PASSAGE_RATE = 1.0f / 60.0f;
 
+const float TREE_FREQ = 0.02f;
+
 const float DRAG_COEF = 0.03f;
 const float MAX_SPEED = 20.0f;
 
@@ -70,6 +72,26 @@ void World::genesis(int chunkX, int chunkZ) {
     }
     
     chunks.insert(std::make_pair(std::make_pair(chunkX, chunkZ), std::move(chunkdata)));
+}
+
+void World::plant() {
+    blocktype block;
+    int x, y, z;
+    for (const auto &chunkEntry : chunks) {
+        for (int internalY = 0; internalY < ceil((float) chunkEntry.second.size() / (CHUNK_SIZE * CHUNK_SIZE)); internalY++) {
+            for (int internalX = 0; internalX < CHUNK_SIZE; internalX++) {
+                for (int internalZ = 0; internalZ < CHUNK_SIZE; internalZ++) {
+                    x = chunkEntry.first.first * CHUNK_SIZE + internalX;
+                    y = internalY;
+                    z = chunkEntry.first.second * CHUNK_SIZE + internalZ;
+                    block = getBlock(x, y, z);
+                    if ((block == BLOCK_GRASS) && ((float) rand() / RAND_MAX < TREE_FREQ)) {
+                        setBlock(x, y + 1, z, BLOCK_LEAVES);
+                    }
+                }
+            }
+        }
+    }
 }
 
 static inline int mod(int a, int b) {

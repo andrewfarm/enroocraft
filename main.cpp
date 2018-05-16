@@ -58,6 +58,7 @@ int main(int argc, const char * argv[]) {
             world.genesis(x, z);
         }
     }
+    world.plant();
     
     Renderer renderer;
     renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);

@@ -68,6 +68,7 @@ class World {
 public:
     World();
     void genesis(int chunkX, int chunkZ);
+    void plant();
     blocktype getBlock(int x, int y, int z);
     void setBlock(int x, int y, int z, blocktype block);
     std::map<std::pair<int, int>, std::vector<blocktype>> *getChunks();
