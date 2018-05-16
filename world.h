@@ -53,7 +53,7 @@ const blockinfo blockInfos[] = {
     {8, 8, 8, 8, 8, 8, false, false}, //WATER
     {9, 9, 9, 9, 9, 9, true,  true},  //SAND
     {10, 10, 11, 11, 10, 10, true,  true},  //WOOD
-    {12, 12, 12, 12, 12, 12, true,  false}, //LEAVES
+    {12, 12, 12, 12, 12, 12, true,  true},  //LEAVES
 };
 
 static inline bool isSolid(int block) {

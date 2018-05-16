@@ -17,7 +17,7 @@
 
 const float TIME_PASSAGE_RATE = 1.0f / 60.0f;
 
-const float TREE_FREQ = 0.02f;
+const float TREE_FREQ = 0.01f;
 
 const float DRAG_COEF = 0.03f;
 const float MAX_SPEED = 20.0f;
