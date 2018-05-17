@@ -29,23 +29,17 @@ const int TREE_CENTER_X = 2;
 const int TREE_CENTER_Z = 2;
 const int TREE_CENTER_Y = -1;
 const blocktype STRUCTURE_TREE[] = {
-    -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1,
-    -1, -1, BLOCK_WOOD, -1, -1,
-    -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, BLOCK_WOOD, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
     
-    -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1,
-    -1, -1, BLOCK_WOOD, -1, -1,
-    -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1,
-    
-    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
-    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
-    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_WOOD,   BLOCK_LEAVES, BLOCK_LEAVES,
-    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
-    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, BLOCK_WOOD, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
     
     BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
     BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
@@ -53,17 +47,23 @@ const blocktype STRUCTURE_TREE[] = {
     BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
     BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
     
-    -1, -1, -1, -1, -1,
-    -1, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, -1,
-    -1, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, -1,
-    -1, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, -1,
-    -1, -1, -1, -1, -1,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_WOOD,   BLOCK_LEAVES, BLOCK_LEAVES,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
+    BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES,
     
-    -1, -1, -1, -1, -1,
-    -1, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, -1,
-    -1, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, -1,
-    -1, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, -1,
-    -1, -1, -1, -1, -1,
+    0, 0, 0, 0, 0,
+    0, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, 0,
+    0, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, 0,
+    0, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, 0,
+    0, 0, 0, 0, 0,
+    
+    0, 0, 0, 0, 0,
+    0, 0, BLOCK_LEAVES, 0, 0,
+    0, BLOCK_LEAVES, BLOCK_LEAVES, BLOCK_LEAVES, 0,
+    0, 0, BLOCK_LEAVES, 0, 0,
+    0, 0, 0, 0, 0,
 };
 
 World::World() :
@@ -122,6 +122,8 @@ void World::plant() {
     blocktype block;
     int x, y, z;
     int treeStartX, treeStartY, treeStartZ;
+    int currSetBlockX, currSetBlockY, currSetBlockZ;
+    blocktype treeBlock;
     for (const auto &chunkEntry : chunks) {
         for (int internalY = 0; internalY < ceil((float) chunkEntry.second.size() / (CHUNK_SIZE * CHUNK_SIZE)); internalY++) {
             for (int internalX = 0; internalX < CHUNK_SIZE; internalX++) {
@@ -137,11 +139,13 @@ void World::plant() {
                         for (int treeX = 0; treeX < TREE_WIDTH; treeX++) {
                             for (int treeY = 0; treeY < TREE_HEIGHT; treeY++) {
                                 for (int treeZ = 0; treeZ < TREE_DEPTH; treeZ++) {
-                                    setBlock(
-                                            treeStartX + treeX,
-                                            treeStartY + treeY,
-                                            treeStartZ + treeZ,
-                                            STRUCTURE_TREE[(treeY * TREE_WIDTH * TREE_DEPTH) + (treeX * TREE_DEPTH) + treeZ]);
+                                    currSetBlockX = treeStartX + treeX;
+                                    currSetBlockY = treeStartY + treeY;
+                                    currSetBlockZ = treeStartZ + treeZ;
+                                    treeBlock = STRUCTURE_TREE[(treeY * TREE_WIDTH * TREE_DEPTH) + (treeX * TREE_DEPTH) + treeZ];
+                                    if (getBlock(currSetBlockX, currSetBlockY, currSetBlockZ) == BLOCK_AIR) {
+                                        setBlock(currSetBlockX, currSetBlockY, currSetBlockZ, treeBlock);
+                                    }
                                 }
                             }
                         }
