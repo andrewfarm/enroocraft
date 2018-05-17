@@ -173,6 +173,11 @@ const glm::mat4 lightBiasMatrix(
         0.0f, 0.0f, 0.5f, 0.0f,
         0.5f, 0.5f, 0.5f, 1.0f);
 
+const float TWO_PI = (float) (2 * M_PI);
+
+const float MIDNIGHT_AMBIENT_LIGHT = 0.2f;
+const float DAWN_AMBIENT_LIGHT = 0.5f;
+
 Renderer::Renderer() :
 framebufferCreated(false),
 drawSelectionCube(false)
@@ -633,7 +638,7 @@ void Renderer::setSelectedBlock(int x, int y, int z) {
 }
 
 void Renderer::render() {
-    glm::mat3 rotateLight = glm::rotate(world->getTimeOfDay() * 2 * (float) M_PI, glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat3 rotateLight = glm::rotate(world->getTimeOfDay() * TWO_PI, glm::vec3(0.0f, 0.0f, 1.0f));
     lightDirection = rotateLight * glm::vec3(1.0f, 0.0f, -0.2f);
     updateLightMvpMatrix();
     
@@ -672,6 +677,10 @@ void Renderer::render() {
     glBindTexture(GL_TEXTURE_2D, shadowMapDepthTexture);
     glUniform1i(blockShaderProgram.uniforms["u_ShadowMap"], 1);
     glUniform3fv(blockShaderProgram.uniforms["u_LightDirection"], 1, &lightDirection[0]);
+    float ambientLight = fmax(
+            (sinf(world->getTimeOfDay() * TWO_PI)) * (1.0f - DAWN_AMBIENT_LIGHT) + DAWN_AMBIENT_LIGHT,
+            MIDNIGHT_AMBIENT_LIGHT);
+    glUniform1f(blockShaderProgram.uniforms["u_AmbientLight"], ambientLight);
     
     for (auto &chunkMeshEntry : chunkMeshes) {
         chunkMesh &chunkMesh = chunkMeshEntry.second;
