@@ -662,7 +662,10 @@ void Renderer::render() {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glViewport(0, 0, width, height);
     
-    glClearColor(0.5f, 0.8f, 1.0f, 1.0f);
+    float skyBrightness = fmax(
+            (sinf(world->getTimeOfDay() * TWO_PI)) * (1.0f - DAWN_AMBIENT_LIGHT) + DAWN_AMBIENT_LIGHT,
+            0.05f);
+    glClearColor(0.5f * skyBrightness, 0.8f * skyBrightness, 1.0f * skyBrightness, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
