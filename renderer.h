@@ -10,22 +10,18 @@
 #define renderer_h
 
 #include <map>
+#include <memory>
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
 #include "world.h"
 #include "shaderprogram.h"
-
-struct mesh {
-    GLsizei vertexCount;
-    GLuint bufferID;
-    GLuint vertexArrayID;
-};
+#include "mesh.h"
 
 struct chunkMesh {
-    mesh opaqueMesh;
-    mesh transparentMesh;
+    std::shared_ptr<Mesh> opaqueMesh;
+    std::shared_ptr<Mesh> transparentMesh;
 };
 
 class Renderer {

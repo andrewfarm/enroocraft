@@ -126,6 +126,14 @@ static const float pzGeometryFlipped[] = {
 #define FACE_GEOMETRY_UV       6
 #define FACE_GEOMETRY_AO       8
 
+static const VertexAttrib faceAttribs[] = {
+    {0, 3, FACE_GEOMETRY_POSITION}, // position
+    {1, 3, FACE_GEOMETRY_NORMAL},   // normal
+    {2, 2, FACE_GEOMETRY_UV},       // texture UVs
+    {3, 1, FACE_GEOMETRY_AO},       // ambient light
+};
+static const GLuint faceAttribCount = sizeof(faceAttribs) / sizeof(faceAttribs[0]);
+
 static const float screenGeometry[] = {
      1.0f,  1.0f,   1.0f, 1.0f,
     -1.0f,  1.0f,   0.0f, 1.0f,
@@ -515,60 +523,56 @@ void Renderer::mesh(
     }
 }
 
-void loadMesh(int prevVertexCount, std::vector<float> &meshData, mesh &mesh) {
-    GLsizei meshSize = (GLsizei) meshData.size();
-    GLsizei vertexCount = meshSize / FACE_GEOMETRY_STRIDE;
-    mesh.vertexCount = vertexCount;
-    
-    glBindVertexArray(mesh.vertexArrayID);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh.bufferID);
-    if (vertexCount > prevVertexCount) {
-        // increase size of buffer
-        glBufferData(GL_ARRAY_BUFFER, meshSize * sizeof(meshData[0]), &meshData[0], GL_DYNAMIC_DRAW);
-    } else {
-        // update existing buffer
-        glBufferSubData(GL_ARRAY_BUFFER, 0, meshSize * sizeof(meshData[0]), &meshData[0]);
-    }
-    
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
-            (void *) (FACE_GEOMETRY_POSITION * sizeof(meshData[0])));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
-            (void *) (FACE_GEOMETRY_NORMAL * sizeof(meshData[0])));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
-            (void *) (FACE_GEOMETRY_UV * sizeof(meshData[0])));
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE,
-            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
-            (void *) (FACE_GEOMETRY_AO * sizeof(meshData[0])));
-}
+//void loadMesh(std::shared_ptr<Mesh> mesh, std::vector<float> &meshData) {
+//    GLsizei meshSize = (GLsizei) meshData.size();
+//    GLsizei vertexCount = meshSize / FACE_GEOMETRY_STRIDE;
+//    mesh.vertexCount = vertexCount;
+//
+//    glBindVertexArray(mesh.vertexArrayID);
+//    glBindBuffer(GL_ARRAY_BUFFER, mesh.bufferID);
+//    if (vertexCount > prevVertexCount) {
+//        // increase size of buffer
+//        glBufferData(GL_ARRAY_BUFFER, meshSize * sizeof(meshData[0]), &meshData[0], GL_DYNAMIC_DRAW);
+//    } else {
+//        // update existing buffer
+//        glBufferSubData(GL_ARRAY_BUFFER, 0, meshSize * sizeof(meshData[0]), &meshData[0]);
+//    }
+//
+//    glEnableVertexAttribArray(0);
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+//            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
+//            (void *) (FACE_GEOMETRY_POSITION * sizeof(meshData[0])));
+//    glEnableVertexAttribArray(1);
+//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+//            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
+//            (void *) (FACE_GEOMETRY_NORMAL * sizeof(meshData[0])));
+//    glEnableVertexAttribArray(2);
+//    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+//            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
+//            (void *) (FACE_GEOMETRY_UV * sizeof(meshData[0])));
+//    glEnableVertexAttribArray(3);
+//    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE,
+//            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
+//            (void *) (FACE_GEOMETRY_AO * sizeof(meshData[0])));
+//}
 
 void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
     // get pointer to mesh struct, and create new one if necessary
     const auto chunkMeshEntry = chunkMeshes.find(std::pair<int, int>(chunkX, chunkZ));
     chunkMesh *p_chunkMesh;
-    int prevOpaqueVertexCount = -1;
-    int prevTransparentVertexCount = -1;
     if (chunkMeshEntry != chunkMeshes.end()) {
         // mesh for this chunk already exists
         p_chunkMesh = &(chunkMeshEntry->second);
-        prevOpaqueVertexCount = p_chunkMesh->opaqueMesh.vertexCount;
-        prevTransparentVertexCount = p_chunkMesh->transparentMesh.vertexCount;
     } else {
-        // create new mesh entry along with vertex array and buffer
+        // create new mesh entry
         chunkMesh temp;
         std::pair<int, int> key(chunkX, chunkZ);
         chunkMeshes.insert(std::make_pair(key, temp));
         p_chunkMesh = &(chunkMeshes.find(key)->second);
-        glGenVertexArrays(1, &(p_chunkMesh->opaqueMesh.vertexArrayID));
-        glGenVertexArrays(1, &(p_chunkMesh->transparentMesh.vertexArrayID));
-        glGenBuffers(1, &(p_chunkMesh->opaqueMesh.bufferID));
-        glGenBuffers(1, &(p_chunkMesh->transparentMesh.bufferID));
+        p_chunkMesh->opaqueMesh = std::make_shared<Mesh>(
+                faceAttribs, faceAttribCount, GL_DYNAMIC_DRAW, GL_TRIANGLES);
+        p_chunkMesh->transparentMesh = std::make_shared<Mesh>(
+                faceAttribs, faceAttribCount, GL_DYNAMIC_DRAW, GL_TRIANGLES);
     }
     
     // generate mesh
@@ -577,8 +581,10 @@ void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype
     mesh(opaqueMeshData, transparentMeshData, chunkX, chunkZ, blocks);
     
     // send vertex data to OpenGL
-    loadMesh(prevOpaqueVertexCount, opaqueMeshData, p_chunkMesh->opaqueMesh);
-    loadMesh(prevTransparentVertexCount, transparentMeshData, p_chunkMesh->transparentMesh);
+    p_chunkMesh->opaqueMesh->setData(
+            &opaqueMeshData[0], opaqueMeshData.size());
+    p_chunkMesh->transparentMesh->setData(
+            &transparentMeshData[0], transparentMeshData.size());
 }
 
 void Renderer::updateMesh(int chunkX, int chunkZ) {
@@ -655,8 +661,7 @@ void Renderer::render() {
     
     for (auto &chunkMeshEntry : chunkMeshes) {
         chunkMesh &chunkMesh = chunkMeshEntry.second;
-        glBindVertexArray(chunkMesh.opaqueMesh.vertexArrayID);
-        glDrawArrays(GL_TRIANGLES, 0, chunkMesh.opaqueMesh.vertexCount);
+        chunkMesh.opaqueMesh->draw();
     }
     
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -687,15 +692,13 @@ void Renderer::render() {
     
     for (auto &chunkMeshEntry : chunkMeshes) {
         chunkMesh &chunkMesh = chunkMeshEntry.second;
-        glBindVertexArray(chunkMesh.opaqueMesh.vertexArrayID);
-        glDrawArrays(GL_TRIANGLES, 0, chunkMesh.opaqueMesh.vertexCount);
+        chunkMesh.opaqueMesh->draw();
     }
     
     glDepthMask(GL_FALSE);
     for (auto &chunkMeshEntry : chunkMeshes) {
         chunkMesh &chunkMesh = chunkMeshEntry.second;
-        glBindVertexArray(chunkMesh.transparentMesh.vertexArrayID);
-        glDrawArrays(GL_TRIANGLES, 0, chunkMesh.transparentMesh.vertexCount);
+        chunkMesh.transparentMesh->draw();
     }
     
     if (drawSelectionCube) {

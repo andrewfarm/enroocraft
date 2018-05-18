@@ -13,11 +13,11 @@ target(target),
 bufferSize(0),
 usage(usage)
 {
-    glGenBuffers(1, &bufferID);
+    glGenBuffers(1, &vboID);
 }
 
 VBO::~VBO() {
-    glDeleteBuffers(1, &bufferID);
+    glDeleteBuffers(1, &vboID);
 }
 
 GLsizeiptr VBO::size() {
@@ -25,19 +25,18 @@ GLsizeiptr VBO::size() {
 }
 
 void VBO::bind() {
-    glBindBuffer(target, bufferID);
+    glBindBuffer(target, vboID);
 }
 
 /* Sets the contents of the buffer. Can be called more than once. */
-void VBO::setData(GLfloat *data, GLsizeiptr count) {
+void VBO::setData(GLvoid *data, GLsizeiptr size) {
     bind();
-    GLsizeiptr minBufferSize = count * sizeof(GLfloat);
-    if (minBufferSize > bufferSize) {
+    if (size > bufferSize) {
         // increase size of buffer
-        bufferSize = minBufferSize;
-        glBufferData(GL_ARRAY_BUFFER, minBufferSize, data, usage);
+        bufferSize = size;
+        glBufferData(GL_ARRAY_BUFFER, size, data, usage);
     } else {
         // update existing buffer
-        glBufferSubData(GL_ARRAY_BUFFER, 0, minBufferSize, data);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
     }
 }

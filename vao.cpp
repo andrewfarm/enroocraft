@@ -8,22 +8,22 @@
 
 #include "vao.h"
 
-VAO::VAO(VertexAttrib *attribList, GLuint attribCount) :
+VAO::VAO(const VertexAttrib attribList[], GLuint attribCount) :
 attribCount(attribCount) {
     attribs = new VertexAttrib[attribCount];
     vertexComponents = 0;
     for (GLuint i = 0; i < attribCount; i++) {
-        VertexAttrib &attrib = attribList[i];
+        const VertexAttrib &attrib = attribList[i];
         attribs[i] = attrib;
         vertexComponents += attrib.components;
     }
-    stride = vertexComponents * sizeof(float);
-    glGenVertexArrays(1, &vertexArrayID);
+    stride = vertexComponents * sizeof(vertex_component_t);
+    glGenVertexArrays(1, &vaoID);
 }
 
 VAO::~VAO() {
     delete [] attribs;
-    glDeleteVertexArrays(1, &vertexArrayID);
+    glDeleteVertexArrays(1, &vaoID);
 }
 
 GLsizei VAO::getVertexComponents() {
@@ -34,7 +34,12 @@ GLsizei VAO::getStride() {
     return stride;
 }
 
+void VAO::bind() {
+    glBindVertexArray(vaoID);
+}
+
 void VAO::setPointers() {
+    bind();
     for (GLuint i = 0; i < attribCount; i++) {
         VertexAttrib &attrib = attribs[i];
         glVertexAttribPointer(attrib.location, attrib.components, GL_FLOAT,

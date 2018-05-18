@@ -13,7 +13,7 @@
 
 class VBO {
     GLenum target;
-    GLuint bufferID;
+    GLuint vboID;
     GLsizeiptr bufferSize;
     GLenum usage;
     
@@ -24,7 +24,7 @@ public:
     VBO &operator=(const VBO &) = delete; // no assignment operator
     GLsizeiptr size();
     void bind();
-    void setData(GLfloat *data, GLsizeiptr count);
+    void setData(GLvoid *data, GLsizeiptr size);
 };
 
 #endif /* vbo_h */

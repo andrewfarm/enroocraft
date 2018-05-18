@@ -11,32 +11,37 @@
 
 #include <GL/glew.h>
 
+typedef float vertex_component_t;
+
 struct VertexAttrib {
+    GLvoid *pointer;
     GLuint location;
     GLint components;
-    GLvoid *pointer;
+    
     VertexAttrib() {}
+    
     VertexAttrib(GLuint location, GLint components, GLsizeiptr offset) :
     location(location),
     components(components),
-    pointer((GLvoid *) offset)
+    pointer((GLvoid *) (offset * sizeof(vertex_component_t)))
     {}
 };
 
 class VAO {
-    GLuint vertexArrayID;
+    GLuint vaoID;
     VertexAttrib *attribs;
     GLuint attribCount;
     GLsizei vertexComponents;
     GLsizei stride;
     
 public:
-    VAO(VertexAttrib *attribList, GLuint attribCount);
+    VAO(const VertexAttrib attribList[], GLuint attribCount);
     ~VAO();
     VAO(const VAO &) = delete; // no copy constructor
     VAO &operator=(const VAO &) = delete; // no assignment operator
     GLsizei getVertexComponents();
     GLsizei getStride();
+    void bind();
     void setPointers();
 };
 
