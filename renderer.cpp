@@ -281,7 +281,17 @@ skyboxMesh(skyboxAttribs, skyboxAttribCount, GL_STATIC_DRAW, GL_STATIC_DRAW,
             "shaders/skyfragmentshader.glsl");
     
     printf("Loading texture atlas\n");
-    texture = loadTexture("res/textures.png");
+    textureAtlas = loadTexture2D("res/textures.png");
+    printf("Loading starfield texture\n");
+    const char *imgFilepaths[] = {
+        "res/starmap_8k_4.png",
+        "res/starmap_8k_3.png",
+        "res/starmap_8k_6.png",
+        "res/starmap_8k_5.png",
+        "res/starmap_8k_2.png",
+        "res/starmap_8k_1.png",
+    };
+    starfieldTexture = loadTexture2D(imgFilepaths);
     
     screenMesh.setData(screenGeometry, LEN_STATIC(screenGeometry));
     
@@ -681,6 +691,9 @@ void Renderer::render() {
     
     skyShaderProgram.useProgram();
     glUniformMatrix4fv(skyShaderProgram.uniforms["u_VpRotationMatrix"], 1, GL_FALSE, &vpRotationMatrix[0][0]);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, starfieldTexture);
+    glUniform1i(skyShaderProgram.uniforms["u_Texture"], 0);
     
     skyboxMesh.draw();
 
@@ -688,7 +701,7 @@ void Renderer::render() {
     glUniformMatrix4fv(blockShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE, &mvpMatrix[0][0]);
     glUniformMatrix4fv(blockShaderProgram.uniforms["u_LightBiasMvpMatrix"], 1, GL_FALSE, &lightBiasMvpMatrix[0][0]);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, textureAtlas);
     glUniform1i(blockShaderProgram.uniforms["u_Texture"], 0);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, shadowMapDepthTexture);
@@ -747,7 +760,7 @@ void Renderer::render() {
     
     crosshairShaderProgram.useProgram();
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, textureAtlas);
     glBindTexture(crosshairShaderProgram.uniforms["u_Texture"], 0);
     glUniform2f(crosshairShaderProgram.uniforms["u_StartUV"], 0.0f, 0.0f);
     glUniform1f(crosshairShaderProgram.uniforms["u_TextureSize"], TEXTURE_ATLAS_SIZE_RECIPROCAL);

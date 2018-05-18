@@ -4,6 +4,8 @@ in vec3 v_Pos;
 
 out vec4 color;
 
+uniform samplerCube u_Texture;
+
 void main() {
-    color = vec4(v_Pos, 1.0);
+    color = texture(u_Texture, v_Pos);
 }

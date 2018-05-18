@@ -11,6 +11,8 @@
 
 #include <GL/glew.h>
 
-GLuint loadTexture(const char *img_filepath);
+GLuint loadTexture2D(const char *img_filepath);
+
+GLuint loadTexture2D(const char **img_filepaths);
 
 #endif /* textureutils_h */

@@ -58,7 +58,8 @@ class Renderer {
     IndexedMesh selectionMesh;
     IndexedMesh skyboxMesh;
     
-    GLuint texture;
+    GLuint textureAtlas;
+    GLuint starfieldTexture;
     
     GLuint shadowMapFBO;
     GLuint shadowMapColorTexture;
