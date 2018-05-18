@@ -38,6 +38,8 @@ class Renderer {
     glm::mat4 mvpMatrix;
     glm::mat4 vpRotationMatrix;
     
+    glm::mat4 skyRotationMatrix;
+    
     glm::vec3 lightDirection;
     glm::mat4 lightMvpMatrix;
     glm::mat4 lightBiasMvpMatrix;
@@ -72,6 +74,7 @@ class Renderer {
     
     void updateMvpMatrix();
     void updateVpRotationMatrix();
+    void updateSkyRotationMatrix();
     void updateLightMvpMatrix();
     
     void mesh(

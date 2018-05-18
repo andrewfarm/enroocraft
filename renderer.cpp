@@ -661,8 +661,8 @@ void Renderer::setSelectedBlock(int x, int y, int z) {
 }
 
 void Renderer::render() {
-    glm::mat3 rotateLight = glm::rotate(world->getTimeOfDay() * TWO_PI, glm::vec3(0.0f, 0.0f, 1.0f));
-    lightDirection = rotateLight * glm::vec3(1.0f, 0.0f, -0.2f);
+    updateSkyRotationMatrix();
+    lightDirection = glm::mat3(skyRotationMatrix) * glm::vec3(1.0f, 0.0f, -0.2f);
     updateLightMvpMatrix();
     
     glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
@@ -690,7 +690,7 @@ void Renderer::render() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     skyShaderProgram.useProgram();
-    glUniformMatrix4fv(skyShaderProgram.uniforms["u_VpRotationMatrix"], 1, GL_FALSE, &vpRotationMatrix[0][0]);
+    glUniformMatrix4fv(skyShaderProgram.uniforms["u_VpRotationMatrix"], 1, GL_FALSE, &(vpRotationMatrix * skyRotationMatrix)[0][0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, starfieldTexture);
     glUniform1i(skyShaderProgram.uniforms["u_Texture"], 0);
@@ -794,6 +794,10 @@ void Renderer::updateVpRotationMatrix() {
     vpRotationMatrix[3][2] = 0.0f;
     
     vpRotationMatrix = projectionMatrix * vpRotationMatrix;
+}
+
+void Renderer::updateSkyRotationMatrix() {
+    skyRotationMatrix = glm::rotate(world->getTimeOfDay() * TWO_PI, glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
 void Renderer::updateLightMvpMatrix() {
