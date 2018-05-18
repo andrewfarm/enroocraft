@@ -18,6 +18,14 @@
 #include "renderer.h"
 #include "textureutils.h"
 
+
+#define LEN_STATIC(xs) (sizeof(xs) / sizeof(xs[0]))
+
+
+///////////////////////////////
+// cube face geometries
+///////////////////////////////
+
 // cube face geometries
 static const float nxGeometry[] = {
     0.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
@@ -132,7 +140,11 @@ static const VertexAttrib faceAttribs[] = {
     {2, 2, FACE_GEOMETRY_UV},       // texture UVs
     {3, 1, FACE_GEOMETRY_AO},       // ambient light
 };
-static const GLuint faceAttribCount = sizeof(faceAttribs) / sizeof(faceAttribs[0]);
+static const GLuint faceAttribCount = LEN_STATIC(faceAttribs);
+
+///////////////////////////////
+// screen geometry
+///////////////////////////////
 
 static const float screenGeometry[] = {
      1.0f,  1.0f,   1.0f, 1.0f,
@@ -145,10 +157,29 @@ static const float screenGeometry[] = {
 #define SCREEN_GEOMETRY_UV 2
 #define SCREEN_GEOMETRY_VERTEX_COMPONENTS 4
 
+static const VertexAttrib screenAttribs[] = {
+    {0, 2, SCREEN_GEOMETRY_POSITION}, // position
+    {1, 2, SCREEN_GEOMETRY_UV},       // texture UVs
+};
+static const GLuint screenAttribCount = LEN_STATIC(screenAttribs);
+
+///////////////////////////////
+// crosshair point geometry
+///////////////////////////////
+
 static const float crosshairGeometry[] = {0.0f, 0.0f};
 
 #define CROSSHAIR_GEOMETRY_POSITION 0
 #define CROSSHAIR_GEOMETRY_VERTEX_COMPONENTS 2
+
+static const VertexAttrib crosshairAttribs[] = {
+    {0, 2, CROSSHAIR_GEOMETRY_POSITION}, // position
+};
+static const GLuint crosshairAttribCount = LEN_STATIC(crosshairAttribs);
+
+///////////////////////////////
+// selection cube geometry
+///////////////////////////////
 
 static const float selectionGeometry[] = {
     -0.005f,  1.005f, -0.005f,
@@ -175,6 +206,12 @@ static const unsigned char selectionIndices[] = {
 
 #define SHADOWMAP_SIZE 4096
 
+static const VertexAttrib selectionAttribs[] = {
+    {0, 3, SELECTION_GEOMETRY_POSITION}, // position
+};
+static const GLuint selectionAttribCount = LEN_STATIC(selectionAttribs);
+
+
 const glm::mat4 lightBiasMatrix(
         0.5f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.5f, 0.0f, 0.0f,
@@ -188,7 +225,9 @@ const float DAWN_AMBIENT_LIGHT = 0.5f;
 
 Renderer::Renderer() :
 framebufferCreated(false),
-drawSelectionCube(false)
+drawSelectionCube(false),
+screenMesh(screenAttribs, screenAttribCount, GL_STATIC_DRAW, GL_TRIANGLE_STRIP),
+crosshairMesh(crosshairAttribs, crosshairAttribCount, GL_STATIC_DRAW, GL_POINTS)
 {
     updateViewMatrix();
     
@@ -217,27 +256,8 @@ drawSelectionCube(false)
     printf("Loading texture atlas\n");
     texture = loadTexture("res/textures.png");
     
-    glGenVertexArrays(1, &screenVertexArray);
-    glBindVertexArray(screenVertexArray);
-    
-    glGenBuffers(1, &screenVertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, screenVertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(screenGeometry), screenGeometry, GL_STATIC_DRAW);
-    
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, SCREEN_GEOMETRY_VERTEX_COMPONENTS * sizeof(float), (void *) (SCREEN_GEOMETRY_POSITION * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, SCREEN_GEOMETRY_VERTEX_COMPONENTS * sizeof(float), (void *) (SCREEN_GEOMETRY_UV * sizeof(float)));
-    
-    glGenVertexArrays(1, &crosshairVertexArray);
-    glBindVertexArray(crosshairVertexArray);
-    
-    glGenBuffers(1, &crosshairVertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, crosshairVertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(crosshairGeometry), crosshairGeometry, GL_STATIC_DRAW);
-    
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, CROSSHAIR_GEOMETRY_VERTEX_COMPONENTS * sizeof(float), (void *) (CROSSHAIR_GEOMETRY_POSITION * sizeof(float)));
+    screenMesh.setData(screenGeometry, LEN_STATIC(screenGeometry));
+    crosshairMesh.setData(crosshairGeometry, LEN_STATIC(crosshairGeometry));
     
     glGenVertexArrays(1, &selectionVertexArray);
     glBindVertexArray(selectionVertexArray);
@@ -523,39 +543,6 @@ void Renderer::mesh(
     }
 }
 
-//void loadMesh(std::shared_ptr<Mesh> mesh, std::vector<float> &meshData) {
-//    GLsizei meshSize = (GLsizei) meshData.size();
-//    GLsizei vertexCount = meshSize / FACE_GEOMETRY_STRIDE;
-//    mesh.vertexCount = vertexCount;
-//
-//    glBindVertexArray(mesh.vertexArrayID);
-//    glBindBuffer(GL_ARRAY_BUFFER, mesh.bufferID);
-//    if (vertexCount > prevVertexCount) {
-//        // increase size of buffer
-//        glBufferData(GL_ARRAY_BUFFER, meshSize * sizeof(meshData[0]), &meshData[0], GL_DYNAMIC_DRAW);
-//    } else {
-//        // update existing buffer
-//        glBufferSubData(GL_ARRAY_BUFFER, 0, meshSize * sizeof(meshData[0]), &meshData[0]);
-//    }
-//
-//    glEnableVertexAttribArray(0);
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-//            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
-//            (void *) (FACE_GEOMETRY_POSITION * sizeof(meshData[0])));
-//    glEnableVertexAttribArray(1);
-//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-//            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
-//            (void *) (FACE_GEOMETRY_NORMAL * sizeof(meshData[0])));
-//    glEnableVertexAttribArray(2);
-//    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-//            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
-//            (void *) (FACE_GEOMETRY_UV * sizeof(meshData[0])));
-//    glEnableVertexAttribArray(3);
-//    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE,
-//            FACE_GEOMETRY_STRIDE * sizeof(meshData[0]),
-//            (void *) (FACE_GEOMETRY_AO * sizeof(meshData[0])));
-//}
-
 void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks) {
     // get pointer to mesh struct, and create new one if necessary
     const auto chunkMeshEntry = chunkMeshes.find(std::pair<int, int>(chunkX, chunkZ));
@@ -732,8 +719,7 @@ void Renderer::render() {
         glUniform4f(screenShaderProgram.uniforms["u_ColorOverlay"], 0.0f, 0.0f, 0.0f, 0.0f);
     }
     
-    glBindVertexArray(screenVertexArray);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    screenMesh.draw();
     
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_BLEND);
@@ -746,8 +732,7 @@ void Renderer::render() {
     glUniform2f(crosshairShaderProgram.uniforms["u_StartUV"], 0.0f, 0.0f);
     glUniform1f(crosshairShaderProgram.uniforms["u_TextureSize"], TEXTURE_ATLAS_SIZE_RECIPROCAL);
     
-    glBindVertexArray(crosshairVertexArray);
-    glDrawArrays(GL_POINTS, 0, 1);
+    crosshairMesh.draw();
 }
 
 void Renderer::updateViewMatrix() {

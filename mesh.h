@@ -24,7 +24,7 @@ public:
     Mesh(const VertexAttrib attribList[], GLuint attribCount, GLenum usage, GLenum drawMode);
     Mesh(const Mesh &) = delete; // no copy constructor
     Mesh &operator=(const Mesh &) = delete; // no assignment operator
-    void setData(float *data, GLsizeiptr count);
+    void setData(const float *data, GLsizeiptr count);
     void draw();
 };
 

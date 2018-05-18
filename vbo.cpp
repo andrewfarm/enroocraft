@@ -29,7 +29,7 @@ void VBO::bind() {
 }
 
 /* Sets the contents of the buffer. Can be called more than once. */
-void VBO::setData(GLvoid *data, GLsizeiptr size) {
+void VBO::setData(const GLvoid *data, GLsizeiptr size) {
     bind();
     if (size > bufferSize) {
         // increase size of buffer

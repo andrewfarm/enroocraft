@@ -50,10 +50,8 @@ class Renderer {
     ShaderProgram simpleShaderProgram;
     
     std::map<std::pair<int, int>, chunkMesh> chunkMeshes;
-    GLuint screenVertexArray;
-    GLuint screenVertexBuffer;
-    GLuint crosshairVertexArray;
-    GLuint crosshairVertexBuffer;
+    Mesh screenMesh;
+    Mesh crosshairMesh;
     GLuint selectionVertexArray;
     GLuint selectionVertexBuffer;
     GLuint selectionIndexBuffer;

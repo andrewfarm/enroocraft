@@ -16,7 +16,7 @@ drawMode(drawMode)
 {}
 
 /* Sets the data for the mesh. Can be called more than once. */
-void Mesh::setData(float *data, GLsizeiptr count) {
+void Mesh::setData(const float *data, GLsizeiptr count) {
     vertexCount = (GLsizei) count / vao.getVertexComponents();
     vbo.setData(data, count * sizeof(data[0]));
     vbo.bind();

@@ -24,7 +24,7 @@ public:
     VBO &operator=(const VBO &) = delete; // no assignment operator
     GLsizeiptr size();
     void bind();
-    void setData(GLvoid *data, GLsizeiptr size);
+    void setData(const GLvoid *data, GLsizeiptr size);
 };
 
 #endif /* vbo_h */
