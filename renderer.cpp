@@ -140,7 +140,6 @@ static const VertexAttrib faceAttribs[] = {
     {2, 2, FACE_GEOMETRY_UV},       // texture UVs
     {3, 1, FACE_GEOMETRY_AO},       // ambient light
 };
-static const GLuint faceAttribCount = LEN_STATIC(faceAttribs);
 
 ///////////////////////////////
 // screen geometry
@@ -157,7 +156,6 @@ static const VertexAttrib screenAttribs[] = {
     {0, 2, 0}, // position
     {1, 2, 2}, // texture UVs
 };
-static const GLuint screenAttribCount = LEN_STATIC(screenAttribs);
 
 ///////////////////////////////
 // crosshair point geometry
@@ -168,7 +166,6 @@ static const float crosshairGeometry[] = {0.0f, 0.0f};
 static const VertexAttrib crosshairAttribs[] = {
     {0, 2, 0}, // position
 };
-static const GLuint crosshairAttribCount = LEN_STATIC(crosshairAttribs);
 
 ///////////////////////////////
 // selection cube geometry
@@ -197,7 +194,6 @@ static const unsigned char selectionIndices[] = {
 static const VertexAttrib selectionAttribs[] = {
     {0, 3, 0}, // position
 };
-static const GLuint selectionAttribCount = LEN_STATIC(selectionAttribs);
 
 ///////////////////////////////
 // skybox geometry
@@ -226,7 +222,21 @@ static const unsigned char skyboxIndices[] = {
 static const VertexAttrib skyboxAttribs[] = {
     {0, 3, 0}, // position
 };
-static const GLuint skyboxAttribCount = LEN_STATIC(skyboxAttribs);
+
+///////////////////////////////
+// sun geometry
+///////////////////////////////
+
+static const float sunGeometry[] = {
+     1.0f,  0.05f,  0.05f,
+     1.0f,  0.05f, -0.05f,
+     1.0f, -0.05f,  0.05f,
+     1.0f, -0.05f, -0.05f,
+};
+
+static const VertexAttrib sunAttribs[] = {
+    {0, 3, 0}, // position
+};
 
 
 #define SHADOWMAP_SIZE 4096
@@ -248,12 +258,16 @@ const glm::mat4 skyboxCorrectionMatrix = glm::rotate(glm::mat4(), HALF_PI, glm::
 Renderer::Renderer() :
 framebufferCreated(false),
 drawSelectionCube(false),
-screenMesh(screenAttribs, screenAttribCount, GL_STATIC_DRAW, GL_TRIANGLE_STRIP),
-crosshairMesh(crosshairAttribs, crosshairAttribCount, GL_STATIC_DRAW, GL_POINTS),
-selectionMesh(selectionAttribs, selectionAttribCount, GL_STATIC_DRAW,
-        GL_STATIC_DRAW, GL_TRIANGLES),
-skyboxMesh(skyboxAttribs, skyboxAttribCount, GL_STATIC_DRAW, GL_STATIC_DRAW,
-        GL_TRIANGLES)
+screenMesh(screenAttribs, LEN_STATIC(screenAttribs),
+        GL_STATIC_DRAW, GL_TRIANGLE_STRIP),
+crosshairMesh(crosshairAttribs, LEN_STATIC(crosshairAttribs),
+        GL_STATIC_DRAW, GL_POINTS),
+selectionMesh(selectionAttribs, LEN_STATIC(selectionAttribs),
+        GL_STATIC_DRAW, GL_STATIC_DRAW, GL_TRIANGLES),
+skyboxMesh(skyboxAttribs, LEN_STATIC(skyboxAttribs),
+        GL_STATIC_DRAW, GL_STATIC_DRAW, GL_TRIANGLES),
+sunMesh(sunAttribs, LEN_STATIC(sunAttribs),
+        GL_STATIC_DRAW, GL_TRIANGLE_STRIP)
 {
     updateViewMatrix();
     
@@ -283,6 +297,10 @@ skyboxMesh(skyboxAttribs, skyboxAttribCount, GL_STATIC_DRAW, GL_STATIC_DRAW,
             "shaders/skyvertexshader.glsl",
             "shaders/skyfragmentshader.glsl");
     
+    sunShaderProgram.load(
+            "shaders/sunvertexshader.glsl",
+            "shaders/simplefragmentshader.glsl");
+    
     printf("Loading texture atlas\n");
     textureAtlas = loadTexture2D("res/textures.png");
     printf("Loading starfield texture\n");
@@ -307,6 +325,8 @@ skyboxMesh(skyboxAttribs, skyboxAttribCount, GL_STATIC_DRAW, GL_STATIC_DRAW,
     skyboxMesh.setData(skyboxGeometry, LEN_STATIC(skyboxGeometry));
     skyboxMesh.setIndices(skyboxIndices, sizeof(skyboxIndices),
             GL_UNSIGNED_BYTE, sizeof(skyboxIndices[0]));
+    
+    sunMesh.setData(sunGeometry, LEN_STATIC(sunGeometry));
     
     // create shadowmap framebuffer
     
@@ -590,9 +610,9 @@ void Renderer::loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype
         chunkMeshes.insert(std::make_pair(key, temp));
         p_chunkMesh = &(chunkMeshes.find(key)->second);
         p_chunkMesh->opaqueMesh = std::make_shared<Mesh>(
-                faceAttribs, faceAttribCount, GL_DYNAMIC_DRAW, GL_TRIANGLES);
+                faceAttribs, LEN_STATIC(faceAttribs), GL_DYNAMIC_DRAW, GL_TRIANGLES);
         p_chunkMesh->transparentMesh = std::make_shared<Mesh>(
-                faceAttribs, faceAttribCount, GL_DYNAMIC_DRAW, GL_TRIANGLES);
+                faceAttribs, LEN_STATIC(faceAttribs), GL_DYNAMIC_DRAW, GL_TRIANGLES);
     }
     
     // generate mesh
@@ -693,12 +713,19 @@ void Renderer::render() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     skyShaderProgram.useProgram();
-    glUniformMatrix4fv(skyShaderProgram.uniforms["u_VpRotationMatrix"], 1, GL_FALSE, &(skyVpRotationMatrix * skyboxCorrectionMatrix)[0][0]);
+    glUniformMatrix4fv(skyShaderProgram.uniforms["u_VpRotationMatrix"], 1,
+            GL_FALSE, &(skyVpRotationMatrix * skyboxCorrectionMatrix)[0][0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, starfieldTexture);
     glUniform1i(skyShaderProgram.uniforms["u_Texture"], 0);
     
     skyboxMesh.draw();
+    
+    sunShaderProgram.useProgram();
+    glUniformMatrix4fv(sunShaderProgram.uniforms["u_VpRotationMatrix"], 1, GL_FALSE, &skyVpRotationMatrix[0][0]);
+    glUniform4f(sunShaderProgram.uniforms["u_Color"], 1.0f, 0.97f, 0.90f, 1.0f);
+    
+    sunMesh.draw();
 
     blockShaderProgram.useProgram();
     glUniformMatrix4fv(blockShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE, &mvpMatrix[0][0]);
@@ -757,7 +784,7 @@ void Renderer::render() {
     
     screenMesh.draw();
     
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glPointSize(50.0f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR);
     

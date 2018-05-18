@@ -53,6 +53,7 @@ int main(int argc, const char * argv[]) {
     world.getEntities()->push_back(temp);
     Player *player = (Player *) &(*world.getEntities())[0];
     player->setPos(glm::vec3(0.5f, 70.0f, 0.5f));
+    player->setLookYaw((float) (-0.5 * M_PI));
     for (int z = -4; z < 4; z++) {
         for (int x = -4; x < 4; x++) {
             world.genesis(x, z);

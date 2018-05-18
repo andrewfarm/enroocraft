@@ -54,12 +54,14 @@ class Renderer {
     ShaderProgram crosshairShaderProgram;
     ShaderProgram simpleShaderProgram;
     ShaderProgram skyShaderProgram;
+    ShaderProgram sunShaderProgram;
     
     std::map<std::pair<int, int>, chunkMesh> chunkMeshes;
     Mesh screenMesh;
     Mesh crosshairMesh;
     IndexedMesh selectionMesh;
     IndexedMesh skyboxMesh;
+    Mesh sunMesh;
     
     GLuint textureAtlas;
     GLuint starfieldTexture;
