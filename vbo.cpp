@@ -28,15 +28,14 @@ void VBO::bind() {
     glBindBuffer(target, vboID);
 }
 
-/* Sets the contents of the buffer. Can be called more than once. */
 void VBO::setData(const GLvoid *data, GLsizeiptr size) {
     bind();
     if (size > bufferSize) {
         // increase size of buffer
         bufferSize = size;
-        glBufferData(GL_ARRAY_BUFFER, size, data, usage);
+        glBufferData(target, size, data, usage);
     } else {
         // update existing buffer
-        glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+        glBufferSubData(target, 0, size, data);
     }
 }

@@ -227,7 +227,9 @@ Renderer::Renderer() :
 framebufferCreated(false),
 drawSelectionCube(false),
 screenMesh(screenAttribs, screenAttribCount, GL_STATIC_DRAW, GL_TRIANGLE_STRIP),
-crosshairMesh(crosshairAttribs, crosshairAttribCount, GL_STATIC_DRAW, GL_POINTS)
+crosshairMesh(crosshairAttribs, crosshairAttribCount, GL_STATIC_DRAW, GL_POINTS),
+selectionMesh(selectionAttribs, selectionAttribCount, GL_STATIC_DRAW,
+        GL_STATIC_DRAW, GL_TRIANGLES)
 {
     updateViewMatrix();
     
@@ -257,21 +259,12 @@ crosshairMesh(crosshairAttribs, crosshairAttribCount, GL_STATIC_DRAW, GL_POINTS)
     texture = loadTexture("res/textures.png");
     
     screenMesh.setData(screenGeometry, LEN_STATIC(screenGeometry));
+    
     crosshairMesh.setData(crosshairGeometry, LEN_STATIC(crosshairGeometry));
     
-    glGenVertexArrays(1, &selectionVertexArray);
-    glBindVertexArray(selectionVertexArray);
-    
-    glGenBuffers(1, &selectionVertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, selectionVertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(selectionGeometry), selectionGeometry, GL_STATIC_DRAW);
-    
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, SELECTION_GEOMETRY_VERTEX_COMPONENTS * sizeof(float), (void *) (SELECTION_GEOMETRY_POSITION * sizeof(float)));
-    
-    glGenBuffers(1, &selectionIndexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, selectionIndexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(selectionIndices), selectionIndices, GL_STATIC_DRAW);
+    selectionMesh.setData(selectionGeometry, LEN_STATIC(selectionGeometry));
+    selectionMesh.setIndices(selectionIndices, sizeof(selectionIndices),
+            GL_UNSIGNED_BYTE, sizeof(selectionIndices[0]));
     
     // create shadowmap framebuffer
     
@@ -694,9 +687,7 @@ void Renderer::render() {
                 &(mvpMatrix * selectionModelMatrix)[0][0]);
         glUniform4f(simpleShaderProgram.uniforms["u_Color"], 1.0f, 1.0f, 1.0f, 0.25f);
         
-        glBindVertexArray(selectionVertexArray);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, selectionIndexBuffer);
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void *) 0);
+        selectionMesh.draw();
     }
     glDepthMask(GL_TRUE);
     

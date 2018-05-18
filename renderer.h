@@ -18,6 +18,7 @@
 #include "world.h"
 #include "shaderprogram.h"
 #include "mesh.h"
+#include "indexedmesh.h"
 
 struct chunkMesh {
     std::shared_ptr<Mesh> opaqueMesh;
@@ -52,9 +53,7 @@ class Renderer {
     std::map<std::pair<int, int>, chunkMesh> chunkMeshes;
     Mesh screenMesh;
     Mesh crosshairMesh;
-    GLuint selectionVertexArray;
-    GLuint selectionVertexBuffer;
-    GLuint selectionIndexBuffer;
+    IndexedMesh selectionMesh;
     
     GLuint texture;
     

@@ -8,14 +8,33 @@
 
 #include "mesh.h"
 
-Mesh::Mesh(const VertexAttrib attribList[], GLuint attribCount, GLenum usage, GLenum drawMode) :
+Mesh::Mesh(
+        const VertexAttrib attribList[],
+        GLuint attribCount,
+        GLenum usage,
+        GLenum drawMode) :
 vao(attribList, attribCount),
 vbo(GL_ARRAY_BUFFER, usage),
 vertexCount(0),
 drawMode(drawMode)
 {}
 
-/* Sets the data for the mesh. Can be called more than once. */
+GLsizei Mesh::getVertexCount() {
+    return vertexCount;
+}
+
+GLenum Mesh::getDrawMode() {
+    return drawMode;
+}
+
+void Mesh::bindVAO() {
+    vao.bind();
+}
+
+void Mesh::bindVBO() {
+    vbo.bind();
+}
+
 void Mesh::setData(const float *data, GLsizeiptr count) {
     vertexCount = (GLsizei) count / vao.getVertexComponents();
     vbo.setData(data, count * sizeof(data[0]));

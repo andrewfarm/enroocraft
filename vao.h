@@ -39,9 +39,12 @@ public:
     ~VAO();
     VAO(const VAO &) = delete; // no copy constructor
     VAO &operator=(const VAO &) = delete; // no assignment operator
+    
     GLsizei getVertexComponents();
     GLsizei getStride();
+    
     void bind();
+    
     void setPointers();
 };
 

@@ -22,8 +22,12 @@ public:
     ~VBO();
     VBO(const VBO &) = delete; // no copy constructor
     VBO &operator=(const VBO &) = delete; // no assignment operator
+    
     GLsizeiptr size();
+    
     void bind();
+    
+    /* Sets the contents of the buffer. Can be called more than once. */
     void setData(const GLvoid *data, GLsizeiptr size);
 };
 

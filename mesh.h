@@ -21,10 +21,23 @@ class Mesh {
     GLenum drawMode;
     
 public:
-    Mesh(const VertexAttrib attribList[], GLuint attribCount, GLenum usage, GLenum drawMode);
+    Mesh(const VertexAttrib attribList[],
+         GLuint attribCount,
+         GLenum usage,
+         GLenum drawMode);
     Mesh(const Mesh &) = delete; // no copy constructor
     Mesh &operator=(const Mesh &) = delete; // no assignment operator
+    
+    GLsizei getVertexCount();
+    GLenum getDrawMode();
+    
+    void bindVAO();
+    void bindVBO();
+    
+    /* Sets the data for the mesh. Can be called more than once. */
     void setData(const float *data, GLsizeiptr count);
+    
+    /* Draws the mesh. It is undefined to call draw() before setData(). */
     void draw();
 };
 
