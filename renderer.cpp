@@ -238,9 +238,12 @@ const glm::mat4 lightBiasMatrix(
         0.5f, 0.5f, 0.5f, 1.0f);
 
 const float TWO_PI = (float) (2 * M_PI);
+const float HALF_PI = (float) (0.5 * M_PI);
 
 const float MIDNIGHT_AMBIENT_LIGHT = 0.2f;
 const float DAWN_AMBIENT_LIGHT = 0.5f;
+
+const glm::mat4 skyboxCorrectionMatrix = glm::rotate(glm::mat4(), HALF_PI, glm::vec3(-1.0f, 0.0f, 0.0f));
 
 Renderer::Renderer() :
 framebufferCreated(false),
@@ -690,7 +693,7 @@ void Renderer::render() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     skyShaderProgram.useProgram();
-    glUniformMatrix4fv(skyShaderProgram.uniforms["u_VpRotationMatrix"], 1, GL_FALSE, &(vpRotationMatrix * skyRotationMatrix)[0][0]);
+    glUniformMatrix4fv(skyShaderProgram.uniforms["u_VpRotationMatrix"], 1, GL_FALSE, &(skyVpRotationMatrix * skyboxCorrectionMatrix)[0][0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, starfieldTexture);
     glUniform1i(skyShaderProgram.uniforms["u_Texture"], 0);
@@ -798,6 +801,11 @@ void Renderer::updateVpRotationMatrix() {
 
 void Renderer::updateSkyRotationMatrix() {
     skyRotationMatrix = glm::rotate(world->getTimeOfDay() * TWO_PI, glm::vec3(0.0f, 0.0f, 1.0f));
+    updateSkyVpRotationMatrix();
+}
+
+void Renderer::updateSkyVpRotationMatrix() {
+    skyVpRotationMatrix = vpRotationMatrix * skyRotationMatrix;
 }
 
 void Renderer::updateLightMvpMatrix() {
