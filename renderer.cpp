@@ -153,13 +153,9 @@ static const float screenGeometry[] = {
     -1.0f, -1.0f,   0.0f, 0.0f,
 };
 
-#define SCREEN_GEOMETRY_POSITION 0
-#define SCREEN_GEOMETRY_UV 2
-#define SCREEN_GEOMETRY_VERTEX_COMPONENTS 4
-
 static const VertexAttrib screenAttribs[] = {
-    {0, 2, SCREEN_GEOMETRY_POSITION}, // position
-    {1, 2, SCREEN_GEOMETRY_UV},       // texture UVs
+    {0, 2, 0}, // position
+    {1, 2, 2}, // texture UVs
 };
 static const GLuint screenAttribCount = LEN_STATIC(screenAttribs);
 
@@ -169,11 +165,8 @@ static const GLuint screenAttribCount = LEN_STATIC(screenAttribs);
 
 static const float crosshairGeometry[] = {0.0f, 0.0f};
 
-#define CROSSHAIR_GEOMETRY_POSITION 0
-#define CROSSHAIR_GEOMETRY_VERTEX_COMPONENTS 2
-
 static const VertexAttrib crosshairAttribs[] = {
-    {0, 2, CROSSHAIR_GEOMETRY_POSITION}, // position
+    {0, 2, 0}, // position
 };
 static const GLuint crosshairAttribCount = LEN_STATIC(crosshairAttribs);
 
@@ -201,16 +194,42 @@ static const unsigned char selectionIndices[] = {
     2, 3, 6, 7, 6, 3,
 };
 
-#define SELECTION_GEOMETRY_POSITION 0
-#define SELECTION_GEOMETRY_VERTEX_COMPONENTS 3
-
-#define SHADOWMAP_SIZE 4096
-
 static const VertexAttrib selectionAttribs[] = {
-    {0, 3, SELECTION_GEOMETRY_POSITION}, // position
+    {0, 3, 0}, // position
 };
 static const GLuint selectionAttribCount = LEN_STATIC(selectionAttribs);
 
+///////////////////////////////
+// skybox geometry
+///////////////////////////////
+
+static const float skyboxGeometry[] = {
+    -1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+};
+
+static const unsigned char skyboxIndices[] = {
+    0, 3, 4, 7, 4, 3,
+    2, 1, 6, 5, 6, 1,
+    5, 4, 6, 7, 6, 4,
+    2, 3, 1, 0, 1, 3,
+    1, 0, 5, 4, 5, 0,
+    3, 2, 7, 6, 7, 2,
+};
+
+static const VertexAttrib skyboxAttribs[] = {
+    {0, 3, 0}, // position
+};
+static const GLuint skyboxAttribCount = LEN_STATIC(skyboxAttribs);
+
+
+#define SHADOWMAP_SIZE 4096
 
 const glm::mat4 lightBiasMatrix(
         0.5f, 0.0f, 0.0f, 0.0f,
@@ -229,7 +248,9 @@ drawSelectionCube(false),
 screenMesh(screenAttribs, screenAttribCount, GL_STATIC_DRAW, GL_TRIANGLE_STRIP),
 crosshairMesh(crosshairAttribs, crosshairAttribCount, GL_STATIC_DRAW, GL_POINTS),
 selectionMesh(selectionAttribs, selectionAttribCount, GL_STATIC_DRAW,
-        GL_STATIC_DRAW, GL_TRIANGLES)
+        GL_STATIC_DRAW, GL_TRIANGLES),
+skyboxMesh(skyboxAttribs, skyboxAttribCount, GL_STATIC_DRAW, GL_STATIC_DRAW,
+        GL_TRIANGLES)
 {
     updateViewMatrix();
     
@@ -255,6 +276,10 @@ selectionMesh(selectionAttribs, selectionAttribCount, GL_STATIC_DRAW,
             "shaders/simplevertexshader.glsl",
             "shaders/simplefragmentshader.glsl");
     
+    skyShaderProgram.load(
+            "shaders/skyvertexshader.glsl",
+            "shaders/skyfragmentshader.glsl");
+    
     printf("Loading texture atlas\n");
     texture = loadTexture("res/textures.png");
     
@@ -265,6 +290,10 @@ selectionMesh(selectionAttribs, selectionAttribCount, GL_STATIC_DRAW,
     selectionMesh.setData(selectionGeometry, LEN_STATIC(selectionGeometry));
     selectionMesh.setIndices(selectionIndices, sizeof(selectionIndices),
             GL_UNSIGNED_BYTE, sizeof(selectionIndices[0]));
+    
+    skyboxMesh.setData(skyboxGeometry, LEN_STATIC(skyboxGeometry));
+    skyboxMesh.setIndices(skyboxIndices, sizeof(skyboxIndices),
+            GL_UNSIGNED_BYTE, sizeof(skyboxIndices[0]));
     
     // create shadowmap framebuffer
     
@@ -290,7 +319,6 @@ selectionMesh(selectionAttribs, selectionAttribCount, GL_STATIC_DRAW,
     glDrawBuffers(1, drawBuffers);
     
     // Always check that our framebuffer is ok
-    // are you ok, framebuffer?
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if(status == GL_FRAMEBUFFER_COMPLETE) {
         printf("Framebuffer creation successful\n");
@@ -305,8 +333,7 @@ void Renderer::setSize(float width, float height) {
     this->width  = width;
     this->height = height;
     
-    projectionMatrix = glm::perspective(glm::radians(60.0f), width / height, 0.1f, 1000.0f);
-    updateMvpMatrix();
+    updateProjectionMatrix();
     
     printf("Creating screen framebuffer\n");
     if (!framebufferCreated) {
@@ -647,13 +674,15 @@ void Renderer::render() {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glViewport(0, 0, width, height);
     
-    float skyBrightness = fmax(
-            (sinf(world->getTimeOfDay() * TWO_PI)) * (1.0f - DAWN_AMBIENT_LIGHT) + DAWN_AMBIENT_LIGHT,
-            0.05f);
-    glClearColor(0.5f * skyBrightness, 0.8f * skyBrightness, 1.0f * skyBrightness, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    skyShaderProgram.useProgram();
+    glUniformMatrix4fv(skyShaderProgram.uniforms["u_VpRotationMatrix"], 1, GL_FALSE, &vpRotationMatrix[0][0]);
+    
+    skyboxMesh.draw();
 
     blockShaderProgram.useProgram();
     glUniformMatrix4fv(blockShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE, &mvpMatrix[0][0]);
@@ -729,10 +758,29 @@ void Renderer::render() {
 void Renderer::updateViewMatrix() {
     viewMatrix = glm::translate(glm::rotate(glm::rotate(glm::mat4(), -camPitch, glm::vec3(1.0f, 0.0f, 0.0f)), -camYaw, glm::vec3(0.0f, 1.0f, 0.0f)), -camPos);
     updateMvpMatrix();
+    updateVpRotationMatrix();
+}
+
+void Renderer::updateProjectionMatrix() {
+    projectionMatrix = glm::perspective(
+            glm::radians(60.0f), (float) width / (float) height, 0.1f, 1000.0f);
+    updateMvpMatrix();
+    updateVpRotationMatrix();
 }
 
 void Renderer::updateMvpMatrix() {
     mvpMatrix = projectionMatrix * viewMatrix;
+}
+
+void Renderer::updateVpRotationMatrix() {
+    vpRotationMatrix = viewMatrix;
+    
+    // remove translation components of matrix
+    vpRotationMatrix[3][0] = 0.0f;
+    vpRotationMatrix[3][1] = 0.0f;
+    vpRotationMatrix[3][2] = 0.0f;
+    
+    vpRotationMatrix = projectionMatrix * vpRotationMatrix;
 }
 
 void Renderer::updateLightMvpMatrix() {

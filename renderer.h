@@ -36,6 +36,7 @@ class Renderer {
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
     glm::mat4 mvpMatrix;
+    glm::mat4 vpRotationMatrix;
     
     glm::vec3 lightDirection;
     glm::mat4 lightMvpMatrix;
@@ -49,11 +50,13 @@ class Renderer {
     ShaderProgram screenShaderProgram;
     ShaderProgram crosshairShaderProgram;
     ShaderProgram simpleShaderProgram;
+    ShaderProgram skyShaderProgram;
     
     std::map<std::pair<int, int>, chunkMesh> chunkMeshes;
     Mesh screenMesh;
     Mesh crosshairMesh;
     IndexedMesh selectionMesh;
+    IndexedMesh skyboxMesh;
     
     GLuint texture;
     
@@ -67,6 +70,7 @@ class Renderer {
     GLuint renderedDepthTexture;
     
     void updateMvpMatrix();
+    void updateVpRotationMatrix();
     void updateLightMvpMatrix();
     
     void mesh(
@@ -96,6 +100,7 @@ public:
     void setSelectedBlock(int x, int y, int z);
     
     void updateViewMatrix();
+    void updateProjectionMatrix();
     
     void updateMesh(int chunkX, int chunkZ);
     void updateMesh(int x, int y, int z);
