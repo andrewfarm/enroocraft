@@ -67,6 +67,8 @@ class World {
     std::vector<Entity> entities;
     float timeOfDay;
     
+    bool isLastBlockOfPortalFrame(int x, int y, int z);
+    
 public:
     World();
     void genesis(int chunkX, int chunkZ);

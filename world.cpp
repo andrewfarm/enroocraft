@@ -66,6 +66,20 @@ const blocktype STRUCTURE_TREE[] = {
     0, 0, 0, 0, 0,
 };
 
+const int PORTAL_FRAME_WIDTH = 4;
+const int PORTAL_FRAME_DEPTH = 1;
+const int PORTAL_FRAME_HEIGHT = 5;
+const int PORTAL_FRAME_CENTER_X = 3;
+const int PORTAL_FRAME_CENTER_Z = 0;
+const int PORTAL_FRAME_CENTER_Y = 4;
+const blocktype STRUCTURE_PORTAL_FRAME[] = {
+    BLOCK_OBSIDIAN, BLOCK_OBSIDIAN, BLOCK_OBSIDIAN, BLOCK_OBSIDIAN,
+    BLOCK_OBSIDIAN, BLOCK_AIR,      BLOCK_AIR,      BLOCK_OBSIDIAN,
+    BLOCK_OBSIDIAN, BLOCK_AIR,      BLOCK_AIR,      BLOCK_OBSIDIAN,
+    BLOCK_OBSIDIAN, BLOCK_AIR,      BLOCK_AIR,      BLOCK_OBSIDIAN,
+    BLOCK_OBSIDIAN, BLOCK_OBSIDIAN, BLOCK_OBSIDIAN, BLOCK_OBSIDIAN,
+};
+
 World::World() :
 timeOfDay(0)
 {}
@@ -160,6 +174,24 @@ static inline int mod(int a, int b) {
     return (a % b + b) % b;
 }
 
+bool World::isLastBlockOfPortalFrame(int x, int y, int z) {
+    // portal can only be in one particular configuration for now
+    blocktype shouldBe;
+    int portalFrameStartX = x - PORTAL_FRAME_CENTER_X;
+    int portalFrameStartY = y - PORTAL_FRAME_CENTER_Y;
+    for (int portalFrameX = 0; portalFrameX < PORTAL_FRAME_WIDTH; portalFrameX++) {
+        for (int portalFrameY  = 0; portalFrameY < PORTAL_FRAME_HEIGHT; portalFrameY++) {
+            shouldBe = STRUCTURE_PORTAL_FRAME[
+                    (portalFrameY * PORTAL_FRAME_WIDTH * PORTAL_FRAME_DEPTH) +
+                    (portalFrameX * PORTAL_FRAME_DEPTH)];
+            if (getBlock(portalFrameStartX + portalFrameX, portalFrameStartY + portalFrameY, z) != shouldBe) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 blocktype World::getBlock(int x, int y, int z) {
     const std::pair<int, int> chunkKey(
             floorf((float) x / CHUNK_SIZE), floorf((float) z / CHUNK_SIZE));
@@ -186,6 +218,13 @@ void World::setBlock(int x, int y, int z, blocktype block) {
             chunk.resize(index + (CHUNK_SIZE * CHUNK_SIZE), BLOCK_AIR);
         }
         chunk[index] = block;
+        
+        // possibly create portal
+        if (block == BLOCK_OBSIDIAN) {
+            if (isLastBlockOfPortalFrame(x, y, z)) {
+                printf("Portal created! (not really yet)\n");
+            }
+        }
     }
 }
 
