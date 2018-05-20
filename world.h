@@ -32,6 +32,7 @@ const blocktype BLOCK_WATER      = 7;
 const blocktype BLOCK_SAND       = 8;
 const blocktype BLOCK_WOOD       = 9;
 const blocktype BLOCK_LEAVES     = 10;
+const blocktype BLOCK_OBSIDIAN   = 11;
 
 const int TEXTURE_ATLAS_SIZE = 8;
 const float TEXTURE_ATLAS_SIZE_RECIPROCAL = 1.0f / TEXTURE_ATLAS_SIZE;
@@ -54,6 +55,7 @@ const blockinfo blockInfos[] = {
     {9, 9, 9, 9, 9, 9, true,  true},  //SAND
     {10, 10, 11, 11, 10, 10, true,  true},  //WOOD
     {12, 12, 12, 12, 12, 12, true,  true},  //LEAVES
+    {13, 13, 13, 13, 13, 13, true,  true},  //OBSIDIAN
 };
 
 static inline bool isSolid(int block) {
