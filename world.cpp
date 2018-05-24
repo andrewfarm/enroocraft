@@ -261,6 +261,10 @@ std::vector<Entity> *World::getEntities() {
     return &entities;
 }
 
+std::vector<std::shared_ptr<Portal>> *World::getPortals() {
+    return &portals;
+}
+
 void World::setTimeOfDay(float time) {
     timeOfDay = fmod(time, 1.0);
 }

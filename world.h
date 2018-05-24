@@ -83,6 +83,7 @@ public:
     void setBlock(int x, int y, int z, blocktype block);
     std::map<std::pair<int, int>, std::vector<blocktype>> *getChunks();
     std::vector<Entity> *getEntities();
+    std::vector<std::shared_ptr<Portal>> *getPortals();
     void setTimeOfDay(float time);
     float getTimeOfDay();
     void update(float deltaTime);

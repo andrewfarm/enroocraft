@@ -60,7 +60,8 @@ class Renderer {
     IndexedMesh selectionMesh;
     IndexedMesh skyboxMesh;
     Mesh sunMesh;
-    std::vector<std::shared_ptr<Mesh>> portalPlaneMeshes;
+    std::map<std::shared_ptr<PortalPlane>, std::shared_ptr<Mesh>>
+            portalPlaneMeshes;
     
     GLuint textureAtlas;
     GLuint starfieldTexture;
@@ -85,7 +86,8 @@ class Renderer {
             const std::vector<blocktype> &blocks);
     void loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks);
     
-    void meshPortalPlane(Mesh &mesh, PortalPlane &pp);
+    void meshPortalPlane(Mesh &mesh, const PortalPlane &pp);
+    void updatePortalPlaneMeshes();
     
 public:
     Renderer();

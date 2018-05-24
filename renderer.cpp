@@ -692,7 +692,7 @@ void Renderer::updateMesh(int x, int y, int z) {
     }
 }
 
-void Renderer::meshPortalPlane(Mesh &mesh, PortalPlane &pp) {
+void Renderer::meshPortalPlane(Mesh &mesh, const PortalPlane &pp) {
     const float *faceGeometry;
     int components[3];
     switch (pp.plane) {
@@ -710,9 +710,9 @@ void Renderer::meshPortalPlane(Mesh &mesh, PortalPlane &pp) {
             break;
         case Z:
             faceGeometry = portalPlaneZGeometry;
-            components[0] = 1;
-            components[1] = 2;
-            components[2] = 0;
+            components[0] = 2;
+            components[1] = 0;
+            components[2] = 1;
             break;
     }
     
@@ -725,19 +725,62 @@ void Renderer::meshPortalPlane(Mesh &mesh, PortalPlane &pp) {
         for (int i = 0; i < LEN_STATIC(portalPlaneXGeometry); i++) {
             meshData[meshDataOffset + i] = faceGeometry[i];
         }
-        translate[0] = pp.planeOrdinate;
-        translate[1] = between.first[components[1]];
-        translate[2] = between.first[components[2]];
+        translate[components[0]] = pp.planeOrdinate;
+        translate[components[1]] = between.first[components[1]];
+        translate[components[2]] = between.first[components[2]];
         translateGeometry(
                 meshData, meshDataOffset + LEN_STATIC(portalPlaneXGeometry),
                 meshDataOffset, PORTAL_PLANE_STRIDE,
-                translate[components[0]],
-                translate[components[1]],
-                translate[components[2]]);
+                translate[0],
+                translate[1],
+                translate[2]);
         meshDataOffset += LEN_STATIC(portalPlaneXGeometry);
     }
     
     mesh.setData(meshData, meshDataLength);
+}
+
+void Renderer::updatePortalPlaneMeshes() {
+    std::vector<std::shared_ptr<Portal>> *portals = world->getPortals();
+    
+    // remove meshes for portal planes that no longer exist
+    std::vector<std::shared_ptr<PortalPlane>> meshesToDelete;
+    for (const auto &ppmEntry : portalPlaneMeshes) {
+        bool stillExists = false;
+        for (const std::shared_ptr<Portal> &pp : *portals) {
+            if ((ppmEntry.first == pp->first) || (ppmEntry.first == pp->second)) {
+                stillExists = true;
+                break;
+            }
+        }
+        if (!stillExists) {
+            meshesToDelete.push_back(ppmEntry.first);
+        }
+    }
+    for (const auto &toDelete : meshesToDelete) {
+        portalPlaneMeshes.erase(toDelete);
+    }
+    
+    // add meshes for new portal planes
+    for (const std::shared_ptr<Portal> &pp : *portals) {
+        std::shared_ptr<PortalPlane> planes[] = {pp->first, pp->second};
+        for (const std::shared_ptr<PortalPlane> &ppp : planes) {
+            bool alreadyMeshed = false;
+            for (const auto &ppmEntry : portalPlaneMeshes) {
+                if (ppmEntry.first == ppp) {
+                    alreadyMeshed = true;
+                    break;
+                }
+            }
+            if (!alreadyMeshed) {
+                std::shared_ptr<Mesh> newMesh = std::make_shared<Mesh>(
+                        portalPlaneAttribs, LEN_STATIC(portalPlaneAttribs),
+                        GL_STATIC_DRAW, GL_TRIANGLES);
+                meshPortalPlane(*newMesh, *ppp);
+                portalPlaneMeshes.insert(std::make_pair(ppp, newMesh));
+            }
+        }
+    }
 }
 
 void Renderer::setWorld(World *world) {
@@ -830,6 +873,19 @@ void Renderer::renderFrom(glm::mat4 viewMatrix) {
         chunkMesh.transparentMesh->draw();
     }
     
+    glDepthMask(GL_TRUE);
+    glDisable(GL_CULL_FACE);
+    simpleShaderProgram.useProgram();
+    glUniformMatrix4fv(simpleShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE, &mvpMatrix[0][0]);
+    glUniform4f(simpleShaderProgram.uniforms["u_Color"], 1.0f, 0.0f, 1.0f, 1.0f);
+    
+    for (auto &ppmEntry : portalPlaneMeshes) {
+        std::shared_ptr<Mesh> &portalPlaneMesh = ppmEntry.second;
+        portalPlaneMesh->draw();
+    }
+    
+    glDepthMask(GL_FALSE);
+    glEnable(GL_CULL_FACE);
     if (drawSelectionCube) {
         simpleShaderProgram.useProgram();
         glUniformMatrix4fv(simpleShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE,
@@ -845,6 +901,8 @@ void Renderer::render() {
     updateSkyRotationMatrix();
     lightDirection = glm::mat3(skyRotationMatrix) * glm::vec3(1.0f, 0.0f, -0.2f);
     updateLightMvpMatrix();
+    
+    updatePortalPlaneMeshes();
     
     // render shadow map
     
