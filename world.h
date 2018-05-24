@@ -11,8 +11,11 @@
 
 #include <map>
 #include <vector>
+#include <memory>
 
 #include "entity.h"
+#include "portal.h"
+#include "portallookuptable.h"
 
 #define CHUNK_SIZE 16
 
@@ -65,6 +68,9 @@ static inline bool isSolid(int block) {
 class World {
     std::map<std::pair<int, int>, std::vector<blocktype>> chunks;
     std::vector<Entity> entities;
+    std::vector<std::shared_ptr<Portal>> portals;
+    PortalPlane *unlinkedPortalPlane;
+    PortalLookupTable portalLookupTable;
     float timeOfDay;
     
     bool isLastBlockOfPortalFrame(int x, int y, int z);
