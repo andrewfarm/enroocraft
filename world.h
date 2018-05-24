@@ -69,7 +69,7 @@ class World {
     std::map<std::pair<int, int>, std::vector<blocktype>> chunks;
     std::vector<Entity> entities;
     std::vector<std::shared_ptr<Portal>> portals;
-    PortalPlane *unlinkedPortalPlane;
+    std::shared_ptr<PortalPlane> unlinkedPortalPlane;
     PortalLookupTable portalLookupTable;
     float timeOfDay;
     

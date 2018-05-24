@@ -10,6 +10,7 @@
 #define portal_h
 
 #include <vector>
+#include <memory>
 
 #include <glm/glm.hpp>
 
@@ -39,6 +40,6 @@ struct PortalPlane {
     glm::mat4 rotationMatrix;
 };
 
-typedef std::pair<PortalPlane, PortalPlane> Portal;
+typedef std::pair<std::shared_ptr<PortalPlane>, std::shared_ptr<PortalPlane>> Portal;
 
 #endif /* portal_h */

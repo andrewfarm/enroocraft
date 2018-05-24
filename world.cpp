@@ -223,22 +223,30 @@ void World::setBlock(int x, int y, int z, blocktype block) {
         // possibly create portal
         if (block == BLOCK_OBSIDIAN) {
             if (isLastBlockOfPortalFrame(x, y, z)) {
-                PortalPlane *pp = new PortalPlane;
-                pp->plane = Z;
-                pp->planeOrdinate = z;
+                std::shared_ptr<PortalPlane> ppp = std::make_shared<PortalPlane>();
+                ppp->plane = Z;
+                ppp->planeOrdinate = z;
                 int portalFrameStartX = x - PORTAL_FRAME_CENTER_X;
                 int portalFrameStartY = y - PORTAL_FRAME_CENTER_Y;
                 for (int portalFrameX = 1; portalFrameX < PORTAL_FRAME_WIDTH - 1; portalFrameX++) {
                     for (int portalFrameY = 1; portalFrameY < PORTAL_FRAME_HEIGHT - 1; portalFrameY++) {
                         BlockCoord from(portalFrameStartX + portalFrameX, portalFrameStartY + portalFrameY, z);
                         BlockCoord   to(portalFrameStartX + portalFrameX, portalFrameStartY + portalFrameY, z - 1);
-                        pp->betweenBlocks.push_back(std::make_pair(from, to));
+                        ppp->betweenBlocks.push_back(std::make_pair(from, to));
                     }
                 }
                 if (unlinkedPortalPlane) {
-                    delete unlinkedPortalPlane;
+                    std::shared_ptr<Portal> pp = std::make_shared<Portal>();
+                    pp->first = unlinkedPortalPlane;
+                    pp->second = ppp;
+                    portals.push_back(pp);
+                    portalLookupTable.addPortalPlane(*unlinkedPortalPlane);
+                    portalLookupTable.addPortalPlane(*ppp);
+                    
+                    unlinkedPortalPlane = nullptr;
+                } else {
+                    unlinkedPortalPlane = ppp;
                 }
-                unlinkedPortalPlane = pp;
                 printf("Portal created\n");
             }
         }
