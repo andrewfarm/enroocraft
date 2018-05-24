@@ -19,6 +19,7 @@
 #include "shaderprogram.h"
 #include "mesh.h"
 #include "indexedmesh.h"
+#include "portal.h"
 
 struct chunkMesh {
     std::shared_ptr<Mesh> opaqueMesh;
@@ -62,6 +63,7 @@ class Renderer {
     IndexedMesh selectionMesh;
     IndexedMesh skyboxMesh;
     Mesh sunMesh;
+    std::vector<std::shared_ptr<Mesh>> portalPlaneMeshes;
     
     GLuint textureAtlas;
     GLuint starfieldTexture;
@@ -88,6 +90,8 @@ class Renderer {
             int chunkZ,
             const std::vector<blocktype> &blocks);
     void loadChunkMesh(int chunkX, int chunkZ, const std::vector<blocktype> &blocks);
+    
+    void meshPortalPlane(Mesh &mesh, PortalPlane &pp);
     
 public:
     Renderer();

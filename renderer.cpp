@@ -142,6 +142,41 @@ static const VertexAttrib faceAttribs[] = {
 };
 
 ///////////////////////////////
+// portal plane geometry
+///////////////////////////////
+
+static const float portalPlaneXGeometry[] = {
+    0.0f, 1.0f, 1.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f,
+};
+static const float portalPlaneYGeometry[] = {
+    1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,
+};
+static const float portalPlaneZGeometry[] = {
+    0.0f, 1.0f, 0.0f,
+    1.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,
+    1.0f, 1.0f, 0.0f,
+};
+
+#define PORTAL_PLANE_STRIDE 3
+
+static const VertexAttrib portalPlaneAttribs[] = {
+    {0, 3, 0}, // position
+};
+
+///////////////////////////////
 // screen geometry
 ///////////////////////////////
 
@@ -405,8 +440,9 @@ void Renderer::setSize(float width, float height) {
 
 //TODO inline?
 static void translateGeometry(float *geometry, size_t length,
+                              int positionStart, int floatStride,
                               float x, float y, float z) {
-    for (int i = FACE_GEOMETRY_POSITION; i < length; i += FACE_GEOMETRY_STRIDE) {
+    for (int i = positionStart; i < length; i += floatStride) {
         geometry[i]     += x;
         geometry[i + 1] += y;
         geometry[i + 2] += z;
@@ -465,7 +501,8 @@ static void copyTranslatedIntoVector(
         memcpy(temp, geometry, length * sizeof(*geometry));
         setAO(temp, ao1, ao2, ao3, ao4);
     }
-    translateGeometry(temp, length, translateX, translateY, translateZ);
+    translateGeometry(temp, length, FACE_GEOMETRY_POSITION,
+            FACE_GEOMETRY_STRIDE, translateX, translateY, translateZ);
     translateUV(temp, length, textureNumber);
     size_t size = dest.size();
     dest.resize(size + length);
@@ -653,6 +690,54 @@ void Renderer::updateMesh(int x, int y, int z) {
     } else if (internalZ == CHUNK_SIZE - 1) {
         updateMesh(chunkX, chunkZ + 1);
     }
+}
+
+void Renderer::meshPortalPlane(Mesh &mesh, PortalPlane &pp) {
+    const float *faceGeometry;
+    int components[3];
+    switch (pp.plane) {
+        case X:
+            faceGeometry = portalPlaneXGeometry;
+            components[0] = 0;
+            components[1] = 1;
+            components[2] = 2;
+            break;
+        case Y:
+            faceGeometry = portalPlaneYGeometry;
+            components[0] = 1;
+            components[1] = 0;
+            components[2] = 2;
+            break;
+        case Z:
+            faceGeometry = portalPlaneZGeometry;
+            components[0] = 1;
+            components[1] = 2;
+            components[2] = 0;
+            break;
+    }
+    
+    const GLsizeiptr meshDataLength =
+            pp.betweenBlocks.size() * LEN_STATIC(portalPlaneXGeometry);
+    float meshData[meshDataLength];
+    int meshDataOffset = 0;
+    int translate[3];
+    for (const auto &between : pp.betweenBlocks) {
+        for (int i = 0; i < LEN_STATIC(portalPlaneXGeometry); i++) {
+            meshData[meshDataOffset + i] = faceGeometry[i];
+        }
+        translate[0] = pp.planeOrdinate;
+        translate[1] = between.first[components[1]];
+        translate[2] = between.first[components[2]];
+        translateGeometry(
+                meshData, meshDataOffset + LEN_STATIC(portalPlaneXGeometry),
+                meshDataOffset, PORTAL_PLANE_STRIDE,
+                translate[components[0]],
+                translate[components[1]],
+                translate[components[2]]);
+        meshDataOffset += LEN_STATIC(portalPlaneXGeometry);
+    }
+    
+    mesh.setData(meshData, meshDataLength);
 }
 
 void Renderer::setWorld(World *world) {

@@ -14,21 +14,29 @@
 
 #include <glm/glm.hpp>
 
-enum Plane {X, Y, Z};
+enum Plane {X=0, Y=1, Z=2};
 
 struct BlockCoord {
-    int x, y, z;
+    int c[3];
     
-    BlockCoord(int x, int y, int z) : x(x), y(y), z(z) {}
+    BlockCoord(int x, int y, int z) {
+        c[0] = x;
+        c[1] = y;
+        c[2] = z;
+    }
+    
+    int operator[](int index) const {
+        return c[index];
+    }
     
     bool operator<(const BlockCoord &other) const {
-        if (x == other.x) {
-            if (y == other.y) {
-                return z < other.z;
+        if (c[0] == other[0]) {
+            if (c[1] == other[1]) {
+                return c[2] < other[2];
             }
-            return y < other.y;
+            return c[1] < other[1];
         }
-        return x < other.x;
+        return c[0] < other[0];
     }
 };
 
