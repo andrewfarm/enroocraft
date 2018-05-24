@@ -768,34 +768,26 @@ void Renderer::setSelectedBlock(int x, int y, int z) {
     selectionModelMatrix = glm::translate(glm::mat4(), glm::vec3((float) x, (float) y, (float) z));
 }
 
-void Renderer::render() {
-    updateSkyRotationMatrix();
-    lightDirection = glm::mat3(skyRotationMatrix) * glm::vec3(1.0f, 0.0f, -0.2f);
-    updateLightMvpMatrix();
-    
-    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-    glViewport(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
-    
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glEnable(GL_CULL_FACE);
-    
-    shadowMapShaderProgram.useProgram();
-    glUniformMatrix4fv(shadowMapShaderProgram.uniforms["u_LightMvpMatrix"], 1, GL_FALSE, &lightMvpMatrix[0][0]);
-    
-    for (auto &chunkMeshEntry : chunkMeshes) {
-        chunkMesh &chunkMesh = chunkMeshEntry.second;
-        chunkMesh.opaqueMesh->draw();
-    }
-    
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+void Renderer::renderFrom(glm::mat4 viewMatrix) {
     glViewport(0, 0, width, height);
     
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glm::mat4 mvpMatrix = projectionMatrix * viewMatrix;
+    
+    glm::mat4 vpRotationMatrix = viewMatrix;
+    
+    // remove translation components of vpRotationMatrix
+    vpRotationMatrix[3][0] = 0.0f;
+    vpRotationMatrix[3][1] = 0.0f;
+    vpRotationMatrix[3][2] = 0.0f;
+    
+    vpRotationMatrix = projectionMatrix * vpRotationMatrix;
+    
+    glm::mat4 skyVpRotationMatrix = vpRotationMatrix * skyRotationMatrix;
     
     skyShaderProgram.useProgram();
     glUniformMatrix4fv(skyShaderProgram.uniforms["u_VpRotationMatrix"], 1,
@@ -811,7 +803,7 @@ void Renderer::render() {
     glUniform4f(sunShaderProgram.uniforms["u_Color"], 1.0f, 0.97f, 0.90f, 1.0f);
     
     sunMesh.draw();
-
+    
     blockShaderProgram.useProgram();
     glUniformMatrix4fv(blockShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE, &mvpMatrix[0][0]);
     glUniformMatrix4fv(blockShaderProgram.uniforms["u_LightBiasMvpMatrix"], 1, GL_FALSE, &lightBiasMvpMatrix[0][0]);
@@ -847,6 +839,37 @@ void Renderer::render() {
         selectionMesh.draw();
     }
     glDepthMask(GL_TRUE);
+}
+
+void Renderer::render() {
+    updateSkyRotationMatrix();
+    lightDirection = glm::mat3(skyRotationMatrix) * glm::vec3(1.0f, 0.0f, -0.2f);
+    updateLightMvpMatrix();
+    
+    // render shadow map
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+    glViewport(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
+    
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glEnable(GL_CULL_FACE);
+    
+    shadowMapShaderProgram.useProgram();
+    glUniformMatrix4fv(shadowMapShaderProgram.uniforms["u_LightMvpMatrix"], 1, GL_FALSE, &lightMvpMatrix[0][0]);
+    
+    for (auto &chunkMeshEntry : chunkMeshes) {
+        chunkMesh &chunkMesh = chunkMeshEntry.second;
+        chunkMesh.opaqueMesh->draw();
+    }
+    
+    // render scene
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    renderFrom(viewMatrix);
+    
+    // render to screen
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, width, height);
@@ -869,6 +892,8 @@ void Renderer::render() {
     
     screenMesh.draw();
     
+    // render crosshair
+    
     glPointSize(50.0f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR);
@@ -885,39 +910,15 @@ void Renderer::render() {
 
 void Renderer::updateViewMatrix() {
     viewMatrix = glm::translate(glm::rotate(glm::rotate(glm::mat4(), -camPitch, glm::vec3(1.0f, 0.0f, 0.0f)), -camYaw, glm::vec3(0.0f, 1.0f, 0.0f)), -camPos);
-    updateMvpMatrix();
-    updateVpRotationMatrix();
 }
 
 void Renderer::updateProjectionMatrix() {
     projectionMatrix = glm::perspective(
             glm::radians(60.0f), (float) width / (float) height, 0.1f, 1000.0f);
-    updateMvpMatrix();
-    updateVpRotationMatrix();
-}
-
-void Renderer::updateMvpMatrix() {
-    mvpMatrix = projectionMatrix * viewMatrix;
-}
-
-void Renderer::updateVpRotationMatrix() {
-    vpRotationMatrix = viewMatrix;
-    
-    // remove translation components of matrix
-    vpRotationMatrix[3][0] = 0.0f;
-    vpRotationMatrix[3][1] = 0.0f;
-    vpRotationMatrix[3][2] = 0.0f;
-    
-    vpRotationMatrix = projectionMatrix * vpRotationMatrix;
 }
 
 void Renderer::updateSkyRotationMatrix() {
     skyRotationMatrix = glm::rotate(world->getTimeOfDay() * TWO_PI, glm::vec3(0.0f, 0.0f, 1.0f));
-    updateSkyVpRotationMatrix();
-}
-
-void Renderer::updateSkyVpRotationMatrix() {
-    skyVpRotationMatrix = vpRotationMatrix * skyRotationMatrix;
 }
 
 void Renderer::updateLightMvpMatrix() {

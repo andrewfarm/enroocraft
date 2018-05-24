@@ -36,11 +36,8 @@ class Renderer {
     
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
-    glm::mat4 mvpMatrix;
-    glm::mat4 vpRotationMatrix;
     
     glm::mat4 skyRotationMatrix;
-    glm::mat4 skyVpRotationMatrix;
     
     glm::vec3 lightDirection;
     glm::mat4 lightMvpMatrix;
@@ -77,10 +74,7 @@ class Renderer {
     GLuint renderedColorTexture;
     GLuint renderedDepthTexture;
     
-    void updateMvpMatrix();
-    void updateVpRotationMatrix();
     void updateSkyRotationMatrix();
-    void updateSkyVpRotationMatrix();
     void updateLightMvpMatrix();
     
     void mesh(
@@ -117,6 +111,7 @@ public:
     void updateMesh(int chunkX, int chunkZ);
     void updateMesh(int x, int y, int z);
     
+    void renderFrom(glm::mat4 viewMatrix);
     void render();
 };
 
