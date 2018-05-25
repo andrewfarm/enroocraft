@@ -309,6 +309,22 @@ void World::update(float deltaTime) {
                 e.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
             }
         }
+        
+        glm::vec3 beforePos = e.getPos();
         e.move(e.getVel() * deltaTime);
+        glm::vec3 afterPos = e.getPos();
+        BlockCoord beforeCoord(
+                (int) floorf(beforePos[0]),
+                (int) floorf(beforePos[1]),
+                (int) floorf(beforePos[2]));
+        BlockCoord afterCoord(
+                (int) floorf(afterPos[0]),
+                (int) floorf(afterPos[1]),
+                (int) floorf(afterPos[2]));
+        PortalPlane *ppp = portalLookupTable.getPortalPlane(beforeCoord, afterCoord);
+        if (ppp) {
+            e.setPos(glm::vec3(ppp->translationMatrix * glm::vec4(e.getPos(), 1.0f)));
+            //TODO support portal planes that transform orientation
+        }
     }
 }

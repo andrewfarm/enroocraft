@@ -45,12 +45,14 @@ PortalLookupTable::~PortalLookupTable() {
 void PortalLookupTable::addPortalPlane(PortalPlane &pp) {
     for (const auto &between : pp.betweenBlocks) {
         add(between.first, between.second, &pp);
+        add(between.second, between.first, &pp);
     }
 }
 
 void PortalLookupTable::removePortalPlane(PortalPlane &pp) {
     for (const auto &between : pp.betweenBlocks) {
         remove(between.first, between.second);
+        remove(between.second, between.first);
     }
 }
 
