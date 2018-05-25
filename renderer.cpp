@@ -914,7 +914,8 @@ void Renderer::renderFrom(glm::mat4 viewMatrix, GLuint fbo, bool renderPortals) 
     glDepthMask(GL_TRUE);
     if (renderPortals) {
         for (auto &ppmEntry : portalPlaneMeshes) {
-            renderFrom(viewMatrix * glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -5.0f)), portalFBO, false);
+            //TODO support portals that transform orientation
+            renderFrom(viewMatrix * glm::inverse(ppmEntry.first->translationMatrix), portalFBO, false);
             
             glBindFramebuffer(GL_FRAMEBUFFER, fbo);
             

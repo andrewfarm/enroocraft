@@ -11,6 +11,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/norm.hpp>
+#include <glm/gtx/transform.hpp>
 #include <noise/noise.h>
 
 #include "world.h"
@@ -237,8 +238,24 @@ void World::setBlock(int x, int y, int z, blocktype block) {
                 }
                 if (unlinkedPortalPlane) {
                     std::shared_ptr<Portal> pp = std::make_shared<Portal>();
+                    
                     pp->first = unlinkedPortalPlane;
                     pp->second = ppp;
+                    
+                    BlockCoord firstPlaneCorner = pp->first->betweenBlocks[0].first;
+                    BlockCoord secondPlaneCorner = pp->second->betweenBlocks[0].first;
+                    glm::vec3 diff(
+                            (float) (secondPlaneCorner[0] - firstPlaneCorner[0]),
+                            (float) (secondPlaneCorner[1] - firstPlaneCorner[1]),
+                            (float) (secondPlaneCorner[2] - firstPlaneCorner[2])
+                    );
+                    pp->first->translationMatrix  = glm::translate(diff);
+                    pp->second->translationMatrix = glm::translate(-diff);
+                    
+                    //TODO support portals that transform orientation
+                    pp->first->rotationMatrix  = glm::mat4();
+                    pp->second->rotationMatrix = glm::mat4();
+                    
                     portals.push_back(pp);
                     portalLookupTable.addPortalPlane(*unlinkedPortalPlane);
                     portalLookupTable.addPortalPlane(*ppp);
