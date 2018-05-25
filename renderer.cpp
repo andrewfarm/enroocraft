@@ -336,6 +336,10 @@ sunMesh(sunAttribs, LEN_STATIC(sunAttribs),
             "shaders/sunvertexshader.glsl",
             "shaders/simplefragmentshader.glsl");
     
+    portalShaderProgram.load(
+            "shaders/simplevertexshader.glsl",
+            "shaders/portalfragmentshader.glsl");
+    
     printf("Loading texture atlas\n");
     textureAtlas = loadTexture2D("res/textures.png");
     printf("Loading starfield texture\n");
@@ -403,12 +407,18 @@ void Renderer::setSize(float width, float height) {
     
     updateProjectionMatrix();
     
+    //TODO put framebuffer creation code in function
     printf("Creating screen framebuffer\n");
     if (!framebufferCreated) {
         glGenFramebuffers(1, &framebuffer);
         glGenTextures(1, &renderedColorTexture);
         glGenTextures(1, &renderedDepthTexture);
+        
+        glGenFramebuffers(1, &portalFBO);
+        glGenTextures(1, &portalColorTexture);
+        glGenTextures(1, &portalDepthTexture);
     }
+    
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     
     glBindTexture(GL_TEXTURE_2D, renderedColorTexture);
@@ -426,8 +436,6 @@ void Renderer::setSize(float width, float height) {
     GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, drawBuffers);
     
-    framebufferCreated = true;
-    
     // Always check that our framebuffer is ok
     // are you ok, framebuffer?
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -436,6 +444,33 @@ void Renderer::setSize(float width, float height) {
     } else {
         printf("Error creating framebuffer (status: %d)\n", status);
     }
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, portalFBO);
+    
+    glBindTexture(GL_TEXTURE_2D, portalColorTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, portalColorTexture, 0);
+    
+    //TODO remove depth attachment?
+    glBindTexture(GL_TEXTURE_2D, portalDepthTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  portalDepthTexture, 0);
+    
+    glDrawBuffers(1, drawBuffers);
+    
+    // Always check that our framebuffer is ok
+    status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if(status == GL_FRAMEBUFFER_COMPLETE) {
+        printf("Framebuffer creation successful\n");
+    } else {
+        printf("Error creating framebuffer (status: %d)\n", status);
+    }
+    
+    framebufferCreated = true;
 }
 
 //TODO inline?
@@ -811,13 +846,16 @@ void Renderer::setSelectedBlock(int x, int y, int z) {
     selectionModelMatrix = glm::translate(glm::mat4(), glm::vec3((float) x, (float) y, (float) z));
 }
 
-void Renderer::renderFrom(glm::mat4 viewMatrix) {
+void Renderer::renderFrom(glm::mat4 viewMatrix, GLuint fbo, bool renderPortals) {
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glViewport(0, 0, width, height);
     
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthMask(GL_TRUE);
+    glEnable(GL_CULL_FACE);
     
     glm::mat4 mvpMatrix = projectionMatrix * viewMatrix;
     
@@ -874,15 +912,27 @@ void Renderer::renderFrom(glm::mat4 viewMatrix) {
     }
     
     glDepthMask(GL_TRUE);
-    glDisable(GL_CULL_FACE);
-    simpleShaderProgram.useProgram();
-    glUniformMatrix4fv(simpleShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE, &mvpMatrix[0][0]);
-    glUniform4f(simpleShaderProgram.uniforms["u_Color"], 1.0f, 0.0f, 1.0f, 1.0f);
-    
-    for (auto &ppmEntry : portalPlaneMeshes) {
-        std::shared_ptr<Mesh> &portalPlaneMesh = ppmEntry.second;
-        portalPlaneMesh->draw();
+    if (renderPortals) {
+        for (auto &ppmEntry : portalPlaneMeshes) {
+            renderFrom(viewMatrix * glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -5.0f)), portalFBO, false);
+            
+            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+            
+            glDisable(GL_CULL_FACE);
+            portalShaderProgram.useProgram();
+            glUniformMatrix4fv(portalShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE, &mvpMatrix[0][0]);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, portalColorTexture);
+            glUniform1i(portalShaderProgram.uniforms["u_Texture"], 0);
+            glUniform1f(portalShaderProgram.uniforms["u_ScreenWidth"], (float) width);
+            glUniform1f(portalShaderProgram.uniforms["u_ScreenHeight"], (float) height);
+            
+            std::shared_ptr<Mesh> &portalPlaneMesh = ppmEntry.second;
+            portalPlaneMesh->draw();
+        }
     }
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     
     glDepthMask(GL_FALSE);
     glEnable(GL_CULL_FACE);
@@ -924,8 +974,7 @@ void Renderer::render() {
     
     // render scene
     
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    renderFrom(viewMatrix);
+    renderFrom(viewMatrix, framebuffer, true);
     
     // render to screen
     

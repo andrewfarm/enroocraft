@@ -53,6 +53,7 @@ class Renderer {
     ShaderProgram simpleShaderProgram;
     ShaderProgram skyShaderProgram;
     ShaderProgram sunShaderProgram;
+    ShaderProgram portalShaderProgram;
     
     std::map<std::pair<int, int>, chunkMesh> chunkMeshes;
     Mesh screenMesh;
@@ -74,6 +75,9 @@ class Renderer {
     GLuint framebuffer;
     GLuint renderedColorTexture;
     GLuint renderedDepthTexture;
+    GLuint portalFBO;
+    GLuint portalColorTexture;
+    GLuint portalDepthTexture;
     
     void updateSkyRotationMatrix();
     void updateLightMvpMatrix();
@@ -113,7 +117,7 @@ public:
     void updateMesh(int chunkX, int chunkZ);
     void updateMesh(int x, int y, int z);
     
-    void renderFrom(glm::mat4 viewMatrix);
+    void renderFrom(glm::mat4 viewMatrix, GLuint fbo, bool renderPortals);
     void render();
 };
 
