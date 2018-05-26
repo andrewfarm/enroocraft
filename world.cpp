@@ -291,7 +291,8 @@ float World::getTimeOfDay() {
 }
 
 void World::update(float deltaTime) {
-    setTimeOfDay(timeOfDay + (TIME_PASSAGE_RATE * deltaTime));
+//    setTimeOfDay(timeOfDay + (TIME_PASSAGE_RATE * deltaTime));
+    setTimeOfDay(0.4f);
     
     glm::vec3 vel;
     for (Entity &e : entities) {

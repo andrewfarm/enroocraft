@@ -1022,7 +1022,7 @@ void Renderer::updateViewMatrix() {
 
 void Renderer::updateProjectionMatrix() {
     projectionMatrix = glm::perspective(
-            glm::radians(60.0f), (float) width / (float) height, 0.1f, 1000.0f);
+            glm::radians(60.0f), (float) width / (float) height, 0.01f, 1000.0f);
 }
 
 void Renderer::updateSkyRotationMatrix() {

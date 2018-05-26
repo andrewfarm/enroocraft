@@ -26,7 +26,7 @@ void main() {
     
     vec3 colorWithoutFog = texColor.rgb * totalLight;
     
-    float fog = pow(gl_FragCoord.z, 500.0);
+    float fog = pow(gl_FragCoord.z, 5000.0);
     vec3 colorWithFog = (colorWithoutFog * (1.0f - fog)) + (fogColor * u_AmbientLight * fog);
     color = vec4(colorWithFog, texColor.a);
 }
