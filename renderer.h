@@ -20,6 +20,7 @@
 #include "mesh.h"
 #include "indexedmesh.h"
 #include "portal.h"
+#include "fbo.h"
 
 struct chunkMesh {
     std::shared_ptr<Mesh> opaqueMesh;
@@ -67,17 +68,9 @@ class Renderer {
     GLuint textureAtlas;
     GLuint starfieldTexture;
     
-    GLuint shadowMapFBO;
-    GLuint shadowMapColorTexture;
-    GLuint shadowMapDepthTexture;
-    
-    bool framebufferCreated;
-    GLuint framebuffer;
-    GLuint renderedColorTexture;
-    GLuint renderedDepthTexture;
-    GLuint portalFBO;
-    GLuint portalColorTexture;
-    GLuint portalDepthTexture;
+    FBO shadowMapFBO;
+    FBO screenFBO;
+    FBO portalFBO;
     
     void updateSkyRotationMatrix();
     void updateLightMvpMatrix();
@@ -117,7 +110,7 @@ public:
     void updateMesh(int chunkX, int chunkZ);
     void updateMesh(int x, int y, int z);
     
-    void renderFrom(glm::mat4 viewMatrix, GLuint fbo, bool renderPortals);
+    void renderFrom(glm::mat4 viewMatrix, FBO &fbo, bool renderPortals);
     void render();
 };
 

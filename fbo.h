@@ -18,9 +18,10 @@ class FBO {
     
 public:
     FBO();
+    FBO(GLsizei width, GLsizei height);
     ~FBO();
     
-    void setSize(int width, int height);
+    void setSize(GLsizei width, GLsizei height);
     void bind();
     void bindColorAttachment();
     void bindDepthAttachment();

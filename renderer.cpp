@@ -291,7 +291,6 @@ const float DAWN_AMBIENT_LIGHT = 0.5f;
 const glm::mat4 skyboxCorrectionMatrix = glm::rotate(glm::mat4(), HALF_PI, glm::vec3(-1.0f, 0.0f, 0.0f));
 
 Renderer::Renderer() :
-framebufferCreated(false),
 drawSelectionCube(false),
 screenMesh(screenAttribs, LEN_STATIC(screenAttribs),
         GL_STATIC_DRAW, GL_TRIANGLE_STRIP),
@@ -367,36 +366,7 @@ sunMesh(sunAttribs, LEN_STATIC(sunAttribs),
     
     sunMesh.setData(sunGeometry, LEN_STATIC(sunGeometry));
     
-    // create shadowmap framebuffer
-    
-    printf("Creating shadowmap framebuffer\n");
-    glGenFramebuffers(1, &shadowMapFBO);
-    glGenTextures(1, &shadowMapColorTexture);
-    glGenTextures(1, &shadowMapDepthTexture);
-    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-    
-    glBindTexture(GL_TEXTURE_2D, shadowMapColorTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SHADOWMAP_SIZE, SHADOWMAP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, shadowMapColorTexture, 0);
-    
-    glBindTexture(GL_TEXTURE_2D, shadowMapDepthTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOWMAP_SIZE, SHADOWMAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  shadowMapDepthTexture, 0);
-    
-    GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, drawBuffers);
-    
-    // Always check that our framebuffer is ok
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if(status == GL_FRAMEBUFFER_COMPLETE) {
-        printf("Framebuffer creation successful\n");
-    } else {
-        printf("Error creating framebuffer (status: %d)\n", status);
-    }
+    shadowMapFBO.setSize(SHADOWMAP_SIZE, SHADOWMAP_SIZE);
 }
 
 void Renderer::setSize(float width, float height) {
@@ -407,70 +377,8 @@ void Renderer::setSize(float width, float height) {
     
     updateProjectionMatrix();
     
-    //TODO put framebuffer creation code in function
-    printf("Creating screen framebuffer\n");
-    if (!framebufferCreated) {
-        glGenFramebuffers(1, &framebuffer);
-        glGenTextures(1, &renderedColorTexture);
-        glGenTextures(1, &renderedDepthTexture);
-        
-        glGenFramebuffers(1, &portalFBO);
-        glGenTextures(1, &portalColorTexture);
-        glGenTextures(1, &portalDepthTexture);
-    }
-    
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    
-    glBindTexture(GL_TEXTURE_2D, renderedColorTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedColorTexture, 0);
-    
-    glBindTexture(GL_TEXTURE_2D, renderedDepthTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  renderedDepthTexture, 0);
-    
-    GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, drawBuffers);
-    
-    // Always check that our framebuffer is ok
-    // are you ok, framebuffer?
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if(status == GL_FRAMEBUFFER_COMPLETE) {
-        printf("Framebuffer creation successful\n");
-    } else {
-        printf("Error creating framebuffer (status: %d)\n", status);
-    }
-    
-    glBindFramebuffer(GL_FRAMEBUFFER, portalFBO);
-    
-    glBindTexture(GL_TEXTURE_2D, portalColorTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, portalColorTexture, 0);
-    
-    //TODO remove depth attachment?
-    glBindTexture(GL_TEXTURE_2D, portalDepthTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  portalDepthTexture, 0);
-    
-    glDrawBuffers(1, drawBuffers);
-    
-    // Always check that our framebuffer is ok
-    status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if(status == GL_FRAMEBUFFER_COMPLETE) {
-        printf("Framebuffer creation successful\n");
-    } else {
-        printf("Error creating framebuffer (status: %d)\n", status);
-    }
-    
-    framebufferCreated = true;
+    screenFBO.setSize(width, height);
+    portalFBO.setSize(width, height);
 }
 
 //TODO inline?
@@ -846,8 +754,8 @@ void Renderer::setSelectedBlock(int x, int y, int z) {
     selectionModelMatrix = glm::translate(glm::mat4(), glm::vec3((float) x, (float) y, (float) z));
 }
 
-void Renderer::renderFrom(glm::mat4 viewMatrix, GLuint fbo, bool renderPortals) {
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+void Renderer::renderFrom(glm::mat4 viewMatrix, FBO &fbo, bool renderPortals) {
+    fbo.bind();
     glViewport(0, 0, width, height);
     
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -892,7 +800,7 @@ void Renderer::renderFrom(glm::mat4 viewMatrix, GLuint fbo, bool renderPortals) 
     glBindTexture(GL_TEXTURE_2D, textureAtlas);
     glUniform1i(blockShaderProgram.uniforms["u_Texture"], 0);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, shadowMapDepthTexture);
+    shadowMapFBO.bindDepthAttachment();
     glUniform1i(blockShaderProgram.uniforms["u_ShadowMap"], 1);
     glUniform3fv(blockShaderProgram.uniforms["u_LightDirection"], 1, &lightDirection[0]);
     float ambientLight = fmax(
@@ -917,13 +825,13 @@ void Renderer::renderFrom(glm::mat4 viewMatrix, GLuint fbo, bool renderPortals) 
             //TODO support portals that transform orientation
             renderFrom(viewMatrix * glm::inverse(ppmEntry.first->translationMatrix), portalFBO, false);
             
-            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+            fbo.bind();
             
             glDisable(GL_CULL_FACE);
             portalShaderProgram.useProgram();
             glUniformMatrix4fv(portalShaderProgram.uniforms["u_MvpMatrix"], 1, GL_FALSE, &mvpMatrix[0][0]);
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, portalColorTexture);
+            portalFBO.bindColorAttachment();
             glUniform1i(portalShaderProgram.uniforms["u_Texture"], 0);
             glUniform1f(portalShaderProgram.uniforms["u_ScreenWidth"], (float) width);
             glUniform1f(portalShaderProgram.uniforms["u_ScreenHeight"], (float) height);
@@ -933,7 +841,7 @@ void Renderer::renderFrom(glm::mat4 viewMatrix, GLuint fbo, bool renderPortals) 
         }
     }
     
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    fbo.bind();
     
     glDepthMask(GL_FALSE);
     glEnable(GL_CULL_FACE);
@@ -957,7 +865,7 @@ void Renderer::render() {
     
     // render shadow map
     
-    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+    shadowMapFBO.bind();
     glViewport(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
     
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -975,7 +883,7 @@ void Renderer::render() {
     
     // render scene
     
-    renderFrom(viewMatrix, framebuffer, true);
+    renderFrom(viewMatrix, screenFBO, true);
     
     // render to screen
     
@@ -987,10 +895,10 @@ void Renderer::render() {
     
     screenShaderProgram.useProgram();
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, renderedColorTexture);
+    screenFBO.bindColorAttachment();
     glUniform1i(screenShaderProgram.uniforms["u_ColorTexture"], 0);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, renderedDepthTexture);
+    screenFBO.bindDepthAttachment();
     glUniform1i(screenShaderProgram.uniforms["u_DepthTexture"], 1);
     if (camPos.y < WATER_LEVEL) {
         glUniform4f(screenShaderProgram.uniforms["u_ColorOverlay"], 0.0f, 0.0f, 1.0f, 0.25f);

@@ -10,7 +10,7 @@
 
 #include "fbo.h"
 
-FBO::FBO() {
+FBO::FBO(GLsizei width, GLsizei height) {
     glGenFramebuffers(1, &fboID);
     glGenTextures(1, &colorAttachment);
     glGenTextures(1, &depthAttachment);
@@ -27,6 +27,8 @@ FBO::FBO() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  depthAttachment, 0);
     
+    setSize(width, height);
+    
     const GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, drawBuffers);
     
@@ -39,6 +41,8 @@ FBO::FBO() {
         fprintf(stderr, "Error creating framebuffer (status: %d)\n", status);
     }
 }
+
+FBO::FBO() : FBO(1, 1) {}
 
 FBO::~FBO() {
     glDeleteTextures(1, &colorAttachment);
